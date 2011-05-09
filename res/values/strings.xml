@@ -2,4 +2,6 @@
 <resources>
     <string name="hello">Hello World, MainScreen!</string>
     <string name="app_name">zaduiReader</string>
+    
+    <string name="site_rss_url">http://172.29.1.67:3000/archives/rss.xml</string>
 </resources>

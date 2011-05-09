@@ -114,7 +114,7 @@ public class ReaderArchiveProvider extends ContentProvider {
             values = new ContentValues();
         }
 
-        Long now = Long.valueOf(System.currentTimeMillis());
+//        Long now = Long.valueOf(System.currentTimeMillis());
 
         // Make sure that the fields are all set
 //        if (values.containsKey(Archives.PUB_DATE) == false) {

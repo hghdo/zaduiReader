@@ -1,17 +1,9 @@
 package cn.zadui.reader.view;
 
-import java.util.Iterator;
-
-import org.mcsoxford.rss.RSSFeed;
-import org.mcsoxford.rss.RSSItem;
-import org.mcsoxford.rss.RSSReader;
-import org.mcsoxford.rss.RSSReaderException;
-
 import android.app.ListActivity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.SimpleCursorAdapter;
 import cn.zadui.reader.R;
 import cn.zadui.reader.provider.ReaderArchive.Archives;
@@ -36,12 +28,7 @@ public class MainScreen extends ListActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        try {
-			downloadArchiveRSS();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		//downloadArchiveRSS();
         
         setContentView(R.layout.main);
         
@@ -62,21 +49,6 @@ public class MainScreen extends ListActivity {
                 new String[] { Archives.TITLE,Archives.DESC }, new int[] { R.id.tv_title,R.id.tv_desc });
         setListAdapter(adapter);
              
-    }
-    
-    public void downloadArchiveRSS() throws Exception{
-		Log.d(TAG, "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD");
-		RSSReader reader = new RSSReader();
-		//String uri = "http://live.ifanr.com/feed";
-		String uri="http://172.29.1.67:3000/archives/rss.xml";
-		RSSFeed feed = reader.load(uri);
-		Log.d(TAG, "AAAAAAAAAAAAAAAAAAAAAAAA"+feed.getTitle());
-	
-		for (Iterator<RSSItem> iter = feed.getItems().iterator(); iter.hasNext();) {
-			RSSItem item = iter.next();
-			Log.d(TAG, item.getTitle());
-		}
-
     }
     
 }
