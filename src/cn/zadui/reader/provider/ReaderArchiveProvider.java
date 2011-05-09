@@ -30,6 +30,7 @@ public class ReaderArchiveProvider extends ContentProvider {
 
     private static final int ARCHIVES = 1;
     private static final int ARCHIVE_ID = 2;
+    private static final int ARCHIVE_GUID=3;
 
     private static final UriMatcher sUriMatcher;
 
@@ -46,11 +47,12 @@ public class ReaderArchiveProvider extends ContentProvider {
         public void onCreate(SQLiteDatabase db) {
             db.execSQL("CREATE TABLE " + ARCHIVES_TABLE_NAME + " ("
                     + Archives._ID + " INTEGER PRIMARY KEY,"
+                    + Archives.GUID + " INTEGER,"
                     + Archives.TITLE + " TEXT,"
                     + Archives.DESC + " TEXT,"
                     + Archives.LINK + " TEXT,"
                     + Archives.PUB_DATE + " INTEGER,"
-                    + Archives.GUID + " INTEGER"
+                    + Archives.READED + " BOOLEAN default 0 "
                     + ");");
         }
 
@@ -133,6 +135,11 @@ public class ReaderArchiveProvider extends ContentProvider {
 //        if (values.containsKey(NotePad.Notes.NOTE) == false) {
 //            values.put(NotePad.Notes.NOTE, "");
 //        }
+        
+        
+	    if (values.containsKey(Archives.READED) == false) {
+	      values.put(Archives.READED, false);
+      	}
 
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         long rowId = db.insert(ARCHIVES_TABLE_NAME, "EMPTY", values);
@@ -150,7 +157,7 @@ public class ReaderArchiveProvider extends ContentProvider {
 			String[] selectionArgs, String sortOrder) {
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
         qb.setTables(ARCHIVES_TABLE_NAME);
-
+        Log.d(TAG,"Query uri => "+ uri.toString());
         switch (sUriMatcher.match(uri)) {
         case ARCHIVES:
             qb.setProjectionMap(sArchivesProjectionMap);
@@ -159,6 +166,12 @@ public class ReaderArchiveProvider extends ContentProvider {
         case ARCHIVE_ID:
             qb.setProjectionMap(sArchivesProjectionMap);
             qb.appendWhere(Archives._ID + "=" + uri.getPathSegments().get(1));
+            break;
+
+        case ARCHIVE_GUID:
+        	Log.d(TAG,"Query by guid ==>"+uri.getPathSegments().get(2));
+            qb.setProjectionMap(sArchivesProjectionMap);
+            qb.appendWhere(Archives.GUID + "=" + uri.getPathSegments().get(2));
             break;
 
         default:
@@ -193,8 +206,14 @@ public class ReaderArchiveProvider extends ContentProvider {
             break;
 
         case ARCHIVE_ID:
-            String noteId = uri.getPathSegments().get(1);
-            count = db.update(ARCHIVES_TABLE_NAME, values, Archives._ID + "=" + noteId
+            String archiveId = uri.getPathSegments().get(1);
+            count = db.update(ARCHIVES_TABLE_NAME, values, Archives._ID + "=" + archiveId
+                    + (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : ""), whereArgs);
+            break;
+
+        case ARCHIVE_GUID:
+            String archiveGuid = uri.getPathSegments().get(1);
+            count = db.update(ARCHIVES_TABLE_NAME, values, Archives.GUID + "=" + archiveGuid
                     + (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : ""), whereArgs);
             break;
 
@@ -210,14 +229,15 @@ public class ReaderArchiveProvider extends ContentProvider {
         sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         sUriMatcher.addURI(ReaderArchive.AUTHORITY, "archives", ARCHIVES);
         sUriMatcher.addURI(ReaderArchive.AUTHORITY, "archives/#", ARCHIVE_ID);
+        sUriMatcher.addURI(ReaderArchive.AUTHORITY, "archives/guid/#", ARCHIVE_GUID);
         //sUriMatcher.addURI(ReaderArchive.AUTHORITY, "live_folders/notes", LIVE_FOLDER_NOTES);
 
         sArchivesProjectionMap = new HashMap<String, String>();
         sArchivesProjectionMap.put(Archives._ID, Archives._ID);
+        sArchivesProjectionMap.put(Archives.GUID, Archives.GUID);
         sArchivesProjectionMap.put(Archives.TITLE, Archives.TITLE);
         sArchivesProjectionMap.put(Archives.DESC, Archives.DESC);
         sArchivesProjectionMap.put(Archives.LINK, Archives.LINK);
-        sArchivesProjectionMap.put(Archives.GUID, Archives.GUID);
         sArchivesProjectionMap.put(Archives.PUB_DATE, Archives.PUB_DATE);
 
         // Support for Live Folders.

@@ -18,6 +18,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+		<service android:name=".service.DownloadService" android:exported="false"></service>        
 
     </application>
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>

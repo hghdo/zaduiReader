@@ -15,7 +15,15 @@ public final class ReaderArchive {
 		
 		public static final Uri CONTENT_URI=Uri.parse("content://"+AUTHORITY+"/archives");
 		
-		public static final String DEFAULT_SORT_ORDER = "published DESC";
+		public static final Uri ARCHIVE_GUID_URI=Uri.parse("content://"+AUTHORITY+"/archives/guid");
+		
+		public static final String DEFAULT_SORT_ORDER = "pubDate DESC";
+
+        /**
+         * The note itself
+         * <P>Type: TEXT</P>
+         */
+        public static final String GUID = "guid";
 		
         /**
          * The title of the note
@@ -35,18 +43,14 @@ public final class ReaderArchive {
          */
         public static final String LINK = "link";
 
-        /**
-         * The note itself
-         * <P>Type: TEXT</P>
-         */
-        public static final String GUID = "guid";
-
         
         /**
          * The timestamp for when the note was created
          * <P>Type: INTEGER (long from System.curentTimeMillis())</P>
          */
-        public static final String PUB_DATE = "published";
+        public static final String PUB_DATE = "pubDate";
+        
+        public static final String READED="readed";
 
         
 	}
