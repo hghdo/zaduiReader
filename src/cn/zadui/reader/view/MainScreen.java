@@ -32,7 +32,8 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
     SimpleCursorAdapter adapter;
     
     Button btnRefresh;
-	
+	//ImageView thumb;
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

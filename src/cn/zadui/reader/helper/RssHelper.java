@@ -1,8 +1,11 @@
 package cn.zadui.reader.helper;
 
+import java.io.File;
+
 import org.mcsoxford.rss.RSSItem;
 
 import android.content.ContentValues;
+import android.os.Environment;
 import android.util.Log;
 import cn.zadui.reader.provider.ReaderArchive.Archives;
 
@@ -19,5 +22,18 @@ public class RssHelper {
 		//cv.put(Archives.PUB_DATE, item.getPubDate());
 		Log.d(TAG,item.getGuid()+"|"+item.getTitle()+"|"+item.getDescription());
 		return cv;
+	}
+	
+	public static File getAppDirInSdcard(){
+		File sdcard=Environment.getExternalStorageDirectory();
+		File zaduiHome=new File(sdcard,"zaduiReader");
+		if(!zaduiHome.exists())zaduiHome.mkdirs();
+		return zaduiHome;
+	}
+	
+	public static File getArchivesDirInSdcard(){
+		File adir=new File(getAppDirInSdcard(),"archives");
+		adir.mkdirs();
+		return adir;
 	}
 }
