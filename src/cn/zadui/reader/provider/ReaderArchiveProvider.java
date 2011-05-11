@@ -20,9 +20,9 @@ import android.util.Log;
 
 public class ReaderArchiveProvider extends ContentProvider {
 	
-    private static final String TAG = "NotePadProvider";
+    private static final String TAG = "ReaderArchiveProvider";
     private static final String DATABASE_NAME = "reader_archives.db";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 4;
     private static final String ARCHIVES_TABLE_NAME = "archives";
 
     private static HashMap<String, String> sArchivesProjectionMap;
@@ -52,6 +52,7 @@ public class ReaderArchiveProvider extends ContentProvider {
                     + Archives.DESC + " TEXT,"
                     + Archives.LINK + " TEXT,"
                     + Archives.PUB_DATE + " INTEGER,"
+                    + Archives.THUMB_URL + " TEXT,"                    
                     + Archives.READED + " BOOLEAN default 0 "
                     + ");");
         }
@@ -60,7 +61,7 @@ public class ReaderArchiveProvider extends ContentProvider {
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             Log.w(TAG, "Upgrading database from version " + oldVersion + " to "
                     + newVersion + ", which will destroy all old data");
-            db.execSQL("DROP TABLE IF EXISTS notes");
+            db.execSQL("DROP TABLE IF EXISTS archives");
             onCreate(db);
         }
     }
@@ -238,6 +239,7 @@ public class ReaderArchiveProvider extends ContentProvider {
         sArchivesProjectionMap.put(Archives.TITLE, Archives.TITLE);
         sArchivesProjectionMap.put(Archives.DESC, Archives.DESC);
         sArchivesProjectionMap.put(Archives.LINK, Archives.LINK);
+        sArchivesProjectionMap.put(Archives.THUMB_URL, Archives.THUMB_URL);
         sArchivesProjectionMap.put(Archives.PUB_DATE, Archives.PUB_DATE);
 
         // Support for Live Folders.

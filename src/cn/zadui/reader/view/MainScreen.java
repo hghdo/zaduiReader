@@ -1,14 +1,20 @@
 package cn.zadui.reader.view;
 
+import java.io.File;
+
 import android.app.ListActivity;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.SimpleCursorAdapter;
 import cn.zadui.reader.R;
+import cn.zadui.reader.helper.RssHelper;
 import cn.zadui.reader.provider.ReaderArchive.Archives;
 import cn.zadui.reader.service.DownloadService;
 import cn.zadui.reader.service.DownloadService.ServiceState;
@@ -22,8 +28,10 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
      */
     private static final String[] PROJECTION = new String[] {
             Archives._ID, // 0
+            Archives.GUID,
             Archives.TITLE, // 1
             Archives.DESC, // 2
+            Archives.THUMB_URL,
     };
 
     /** The index of the title column */
@@ -56,7 +64,22 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 
         // Used to map notes entries from the database to views
         adapter = new SimpleCursorAdapter(this, R.layout.archives_item, cursor,
-                new String[] { Archives.TITLE,Archives.DESC }, new int[] { R.id.tv_title,R.id.tv_desc });
+                new String[] { Archives.TITLE,Archives.DESC,Archives.THUMB_URL }, new int[] { R.id.tv_title,R.id.tv_desc,R.id.thumb });
+        adapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
+			
+			@Override
+			public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+				if(columnIndex==cursor.getColumnIndex(Archives.THUMB_URL)){
+					File imgDir=new File(RssHelper.getArchivesDirInSdcard().getAbsolutePath(),cursor.getString(cursor.getColumnIndex(Archives.GUID)));
+					ImageView v=(ImageView)view;
+					Bitmap img=BitmapFactory.decodeFile(imgDir+"/thumb48");
+					v.setImageBitmap(img);
+					return true;
+				}
+				return false;
+			}
+		});
+        
         setListAdapter(adapter);  
     }
 
@@ -78,5 +101,6 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 				}
 			});
 	}
+	
     
 }

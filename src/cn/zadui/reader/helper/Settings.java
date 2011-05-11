@@ -10,6 +10,8 @@ public class Settings {
 	
 	public static final String PRE_SYNC_INTERVAL="sync_interval";
 	
+	public static final String PRE_LAST_FEED_PUB_DATE="last_feed_pub_date";
+	
 	public static long getSyncIntervalInMin(Context ctx){
 		return getSharedPreferences(ctx).getLong(PRE_SYNC_INTERVAL, 2*60);
 	}

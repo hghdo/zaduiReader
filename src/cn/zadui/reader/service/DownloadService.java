@@ -33,7 +33,8 @@ import cn.zadui.reader.provider.ReaderArchive.Archives;
 
 public class DownloadService extends Service {
 
-	public static final String FEED_URL="http://172.29.1.67:8000/archives/feed.xml";
+//	public static final String FEED_URL="http://172.29.1.67:8000/archives/feed.xml";
+	public static final String FEED_URL="http://192.168.1.104:8000/archives/feed.xml";
 	
 	public static StateListener listener;
 	
@@ -179,6 +180,9 @@ public class DownloadService extends Service {
 			} catch (RSSReaderException e) {
 				if(listener!=null) listener.onStateChanged(ServiceState.ERROR,e.getMessage());
 				e.printStackTrace();
+			} catch(Exception ce){
+				if(listener!=null) listener.onStateChanged(ServiceState.ERROR,ce.getMessage());
+				ce.printStackTrace();
 			}
 			listener=null;
 			isRunning=false;
