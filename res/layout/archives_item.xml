@@ -1,47 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 
-	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	  android:layout_width="fill_parent"
-	  android:layout_height="wrap_content"
-      android:layout_weight="1"	  
-	  android:orientation="vertical">
-	    <TextView
-	        android:id="@+id/tv_title"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"/>
-	    <TextView
-	        android:id="@+id/tv_desc"
-	        android:gravity="right"
-	        android:layout_width="wrap_content" 
-	        android:layout_height="wrap_content"/>
-	</LinearLayout>
-
--->
 <LinearLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="fill_parent"
   android:layout_height="wrap_content"
-  android:orientation="horizontal"> 
- 
+  android:orientation="horizontal"
+  android:gravity="center_vertical"
+  android:paddingLeft="5dip"
+  android:paddingRight="8dip"
+  android:paddingTop="5dip"
+  android:paddingBottom="5dip"> 
   	<View android:layout_width="4dip" android:layout_height="wrap_content"></View>
-  	
 	<LinearLayout
 	  android:layout_width="fill_parent"
 	  android:layout_height="wrap_content"
       android:layout_weight="1"	  
-	  android:orientation="vertical">
+	  android:orientation="vertical"
+	  android:layout_marginRight="10dip">
 	    <TextView
 	        android:id="@+id/tv_title"
-	        android:lines="1"
+	        android:maxLines="2"
 	        android:ellipsize="end"
+	        android:textSize="15dip"
+	        android:textStyle="bold"
 	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"/>
+	        android:layout_height="wrap_content"
+	        android:text="title"/>
 	    <TextView
 	        android:id="@+id/tv_desc"
-	        android:lines="3"
-	        android:ellipsize="end"
+	        android:maxLines="3"
+	        android:textSize="12dip"
+	        android:textColor="@color/grey"
 	        android:layout_width="wrap_content" 
-	        android:layout_height="wrap_content"/>
+	        android:layout_height="wrap_content"
+	        android:text="description"/>
 	</LinearLayout>
-	<ImageView android:id="@+id/thumb" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+	<ImageView android:id="@+id/thumb" 
+		android:layout_width="60dip" 
+		android:layout_height="60dip"
+		android:scaleType="centerInside"/>
 </LinearLayout>

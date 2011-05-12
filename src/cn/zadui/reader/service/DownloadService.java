@@ -34,7 +34,7 @@ import cn.zadui.reader.provider.ReaderArchive.Archives;
 public class DownloadService extends Service {
 
 //	public static final String FEED_URL="http://172.29.1.67:8000/archives/feed.xml";
-	public static final String FEED_URL="http://192.168.1.104:8000/archives/feed.xml";
+	public static final String FEED_URL="http://192.168.1.104:3389/archives/feed.xml";
 	
 	public static StateListener listener;
 	

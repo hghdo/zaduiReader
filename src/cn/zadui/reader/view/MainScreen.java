@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.SimpleCursorAdapter;
 import cn.zadui.reader.R;
+import cn.zadui.reader.helper.ImageHelper;
 import cn.zadui.reader.helper.RssHelper;
 import cn.zadui.reader.provider.ReaderArchive.Archives;
 import cn.zadui.reader.service.DownloadService;
@@ -72,8 +73,8 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 				if(columnIndex==cursor.getColumnIndex(Archives.THUMB_URL)){
 					File imgDir=new File(RssHelper.getArchivesDirInSdcard().getAbsolutePath(),cursor.getString(cursor.getColumnIndex(Archives.GUID)));
 					ImageView v=(ImageView)view;
-					Bitmap img=BitmapFactory.decodeFile(imgDir+"/thumb48");
-					v.setImageBitmap(img);
+					Bitmap img=BitmapFactory.decodeFile(imgDir+"/thumb96");
+					v.setImageBitmap(ImageHelper.getRoundedCornerBitmap(img,5));
 					return true;
 				}
 				return false;
