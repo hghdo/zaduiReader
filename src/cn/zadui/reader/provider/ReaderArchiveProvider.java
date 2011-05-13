@@ -20,9 +20,9 @@ import android.util.Log;
 
 public class ReaderArchiveProvider extends ContentProvider {
 	
+	private static final int DATABASE_VERSION = 5;
     private static final String TAG = "ReaderArchiveProvider";
     private static final String DATABASE_NAME = "reader_archives.db";
-    private static final int DATABASE_VERSION = 4;
     private static final String ARCHIVES_TABLE_NAME = "archives";
 
     private static HashMap<String, String> sArchivesProjectionMap;
@@ -52,7 +52,8 @@ public class ReaderArchiveProvider extends ContentProvider {
                     + Archives.DESC + " TEXT,"
                     + Archives.LINK + " TEXT,"
                     + Archives.PUB_DATE + " INTEGER,"
-                    + Archives.THUMB_URL + " TEXT,"                    
+                    + Archives.THUMB_URL + " TEXT,"         
+                    + Archives.CAHECED + " BOOLEAN default 0, "
                     + Archives.READED + " BOOLEAN default 0 "
                     + ");");
         }
@@ -141,6 +142,9 @@ public class ReaderArchiveProvider extends ContentProvider {
 	    if (values.containsKey(Archives.READED) == false) {
 	      values.put(Archives.READED, false);
       	}
+	    if (values.containsKey(Archives.CAHECED) == false) {
+		      values.put(Archives.CAHECED, false);
+	    }
 
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         long rowId = db.insert(ARCHIVES_TABLE_NAME, "EMPTY", values);
@@ -241,6 +245,8 @@ public class ReaderArchiveProvider extends ContentProvider {
         sArchivesProjectionMap.put(Archives.LINK, Archives.LINK);
         sArchivesProjectionMap.put(Archives.THUMB_URL, Archives.THUMB_URL);
         sArchivesProjectionMap.put(Archives.PUB_DATE, Archives.PUB_DATE);
+        sArchivesProjectionMap.put(Archives.READED, Archives.READED);
+        sArchivesProjectionMap.put(Archives.CAHECED, Archives.CAHECED);
 
         // Support for Live Folders.
 //        sLiveFolderProjectionMap = new HashMap<String, String>();

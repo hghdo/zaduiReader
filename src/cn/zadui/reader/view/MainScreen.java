@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import cn.zadui.reader.R;
 import cn.zadui.reader.helper.ImageHelper;
@@ -19,6 +20,7 @@ import cn.zadui.reader.helper.RssHelper;
 import cn.zadui.reader.provider.ReaderArchive.Archives;
 import cn.zadui.reader.service.DownloadService;
 import cn.zadui.reader.service.DownloadService.ServiceState;
+
 
 public class MainScreen extends ListActivity implements View.OnClickListener,DownloadService.StateListener{
 	
@@ -33,14 +35,16 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
             Archives.TITLE, // 1
             Archives.DESC, // 2
             Archives.THUMB_URL,
+            Archives.READED,
+            Archives.CAHECED
     };
 
     /** The index of the title column */
     private static final int COLUMN_INDEX_TITLE = 1;
     
     SimpleCursorAdapter adapter;
-    
     Button btnRefresh;
+    Cursor cursor;
 	//ImageView thumb;
     
     @Override
@@ -60,7 +64,7 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
         
         // Perform a managed query. The Activity will handle closing and requerying the cursor
         // when needed.
-        Cursor cursor = managedQuery(Archives.CONTENT_URI, PROJECTION, null, null,
+        cursor = managedQuery(Archives.CONTENT_URI, PROJECTION, null, null,
                 Archives.DEFAULT_SORT_ORDER);
 
         // Used to map notes entries from the database to views
@@ -86,11 +90,21 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 
 	@Override
 	public void onClick(View v) {
-		Log.d(TAG,"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
 		DownloadService.listener=this;
 		startService(new Intent(this,DownloadService.class));
-		
 	}
+	
+
+	@Override
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+		File f=new File(new File(RssHelper.getArchivesDirInSdcard(),String.valueOf(id)),String.valueOf(id)+".html");
+		Log.d(TAG,"Clicked file is =>"+f.getAbsolutePath());
+		Intent i=new Intent();
+		i.setClass(this, Archive.class);
+		i.putExtra("path", f.getAbsolutePath());
+		startActivity(i);
+	}
+	
 
 	@Override
 	public void onStateChanged(ServiceState state, String info) {

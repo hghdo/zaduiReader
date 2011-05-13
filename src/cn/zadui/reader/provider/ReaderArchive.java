@@ -53,6 +53,8 @@ public final class ReaderArchive {
         public static final String THUMB_URL="thumbUrl";
         
         public static final String READED="readed";
+        
+        public static final String CAHECED="cached";
 
         
 	}

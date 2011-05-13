@@ -33,8 +33,8 @@ import cn.zadui.reader.provider.ReaderArchive.Archives;
 
 public class DownloadService extends Service {
 
-//	public static final String FEED_URL="http://172.29.1.67:8000/archives/feed.xml";
-	public static final String FEED_URL="http://192.168.1.104:3389/archives/feed.xml";
+	public static final String FEED_URL="http://172.29.1.67:3389/archives/feed.xml";
+	//public static final String FEED_URL="http://192.168.1.104:3389/archives/feed.xml";
 	
 	public static StateListener listener;
 	
@@ -58,6 +58,7 @@ public class DownloadService extends Service {
 	}
 	
 	private void handleCommand(Intent intent){
+		if(isRunning) return;
 		(new DownloadThread()).start();
 	}
     
@@ -76,8 +77,7 @@ public class DownloadService extends Service {
 	    	if (listener!=null)	listener.onStateChanged(ServiceState.DOWNLOADING,"");
 			RSSReader reader = new RSSReader();
 			RSSFeed feed;
-			byte[] buffer=new byte[8*1024];
-			int len=0;
+			byte[] buffer=new byte[8*1024];		
 			try {
 				feed = reader.load(FEED_URL);		
 				Log.d(TAG,"Items size is ==> "+String.valueOf(feed.getItems().size()));
@@ -92,87 +92,15 @@ public class DownloadService extends Service {
 					boolean existed=(cursor.getCount()>0);
 					cursor.close();
 					if(existed) continue;
-					
-					boolean mExternalStorageAvailable = false;
-					boolean mExternalStorageWriteable = false;
-					String state = Environment.getExternalStorageState();
-
-					if (Environment.MEDIA_MOUNTED.equals(state)) {
-					    // We can read and write the media
-					    mExternalStorageAvailable = mExternalStorageWriteable = true;
-					} else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
-					    // We can only read the media
-					    mExternalStorageAvailable = true;
-					    mExternalStorageWriteable = false;
-					} else {
-					    // Something else is wrong. It may be one of many other states, but all we need
-					    //  to know is we can neither read nor write
-					    mExternalStorageAvailable = mExternalStorageWriteable = false;
-					}	
-					Log.d(TAG,"sdcard status is => "+ (mExternalStorageWriteable==true ? "writable" : "ERROR"));
-					
-					// Download the pkg.zip and extract it.
-					Log.d(TAG,"Begin download zip file");
-					String zipFileName=item.getGuid()+".pkg.zip";
-					File targetZip=new File(RssHelper.getArchivesDirInSdcard(),zipFileName);
-					//RssHelper.getArchivesDirInSdcard().mkdirs();
-					//File pdir=targetZip.getParentFile();
-					//boolean aaa=pdir.mkdirs();
-					//Log.d(TAG,"Create dir in sdcard ==> "+ (aaa ? "true" : "false"));
-					try {
-						URLConnection con=NetworkHelper.buildUrlConnection(item.getZipPkgUrl());
-						con.connect();
-						FileOutputStream out=new FileOutputStream(targetZip);
-						InputStream in=con.getInputStream();
-						len=0;
-						while((len=in.read(buffer))>0){
-							out.write(buffer,0,len);
-						}
-						out.close();
-						in.close();
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						Log.e(TAG,"Downloa zip file error");
-						e.printStackTrace();
-						continue;
+					ContentValues cv=RssHelper.feedItemToContentValues(item);					
+					if(handleZipPkg(item,buffer)){
+						cv.put(Archives.CAHECED, true);
+						//cv.put(Archives.THUMB_URL, "");
+					}else{
+						// download thumb image
+						String localThumb=downloadThumbnail(item,buffer);
+						if (localThumb!=null) cv.put(Archives.THUMB_URL, localThumb);
 					}
-					Log.d(TAG,"Finished download zip file, then unzip it");
-					
-					// Unzip the downloaded pkg.zip file
-					try {
-						ZipFile zip=new ZipFile(targetZip);
-						Enumeration<?> entries = zip.entries();
-						while(entries.hasMoreElements()){
-							ZipEntry entry=(ZipEntry)entries.nextElement();
-							if(entry.isDirectory()){
-								new File(RssHelper.getArchivesDirInSdcard(),entry.getName()).mkdirs();
-								continue;
-							}
-							BufferedInputStream bis=new BufferedInputStream(zip.getInputStream(entry));
-							File img=new File(RssHelper.getArchivesDirInSdcard(),entry.getName());
-							Log.d(TAG,"Unzip file => "+img.getPath());
-							File parent=img.getParentFile();
-							if(parent!=null && !parent.exists()) parent.mkdirs();
-							BufferedOutputStream bos=new BufferedOutputStream(new FileOutputStream(img),8*1024);
-							len=0;
-							while((len=bis.read(buffer))>0){
-								bos.write(buffer, 0, len);
-							}
-							bos.flush();
-							bos.close();
-							bis.close();
-						}
-						zip.close();
-					} catch (ZipException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					
-					//getContentResolver().query(uri, projection, selection, selectionArgs, sortOrder)
-					ContentValues cv=RssHelper.feedItemToContentValues(item);
 					Uri mUri = DownloadService.this.getContentResolver().insert(Archives.CONTENT_URI, cv);	
 					Log.d(TAG,"Get a new archive");
 				}
@@ -186,7 +114,112 @@ public class DownloadService extends Service {
 			}
 			listener=null;
 			isRunning=false;
+			DownloadService.this.stopSelf();
 		}
+	}
+	
+	/**
+	 * Download zip pkg from remote server and unzip.
+	 * @param item
+	 * @param buffer
+	 * @return true if download and unzip successfully or false if failed
+	 * @throws InterruptedException 
+	 */
+	private boolean handleZipPkg(RSSItem item,byte[] buffer){
+		if (!RssHelper.isSdcardWritable()) return false;
+		// Download the pkg.zip and extract it.
+		int len=0;
+		long st=System.currentTimeMillis();
+		Log.d(TAG,"Begin download zip file==>"+String.valueOf(st));
+		String zipFileName=item.getGuid()+".pkg.zip";
+		File targetZip=new File(RssHelper.getArchivesDirInSdcard(),zipFileName);
+		try {
+			URLConnection con=NetworkHelper.buildUrlConnection(item.getZipPkgUrl());
+			con.connect();
+			FileOutputStream out=new FileOutputStream(targetZip);
+			InputStream in=con.getInputStream();
+			len=0;
+			while((len=in.read(buffer))>0){
+				out.write(buffer,0,len);
+			}
+			out.close();
+			in.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			Log.e(TAG,"Downloa zip file error");
+			e.printStackTrace();
+			return false;
+		}
+		long a=(System.currentTimeMillis()-st)/1000;
+		Log.d(TAG,"Download takes "+String.valueOf(a)+" secondes");
+		Log.d(TAG,"Finished download zip file, then unzip it");
+		
+		// Unzip the downloaded pkg.zip file
+		try {
+			ZipFile zip=new ZipFile(targetZip);
+			Enumeration<?> entries = zip.entries();
+			while(entries.hasMoreElements()){
+				ZipEntry entry=(ZipEntry)entries.nextElement();
+				if(entry.isDirectory()){
+					new File(RssHelper.getArchivesDirInSdcard(),entry.getName()).mkdirs();
+					continue;
+				}
+				BufferedInputStream bis=new BufferedInputStream(zip.getInputStream(entry));
+				File img=new File(RssHelper.getArchivesDirInSdcard(),entry.getName());
+				Log.d(TAG,"Unzip file => "+img.getPath());
+				File parent=img.getParentFile();
+				if(parent!=null && !parent.exists()) parent.mkdirs();
+				BufferedOutputStream bos=new BufferedOutputStream(new FileOutputStream(img),8*1024);
+				len=0;
+				while((len=bis.read(buffer))>0) bos.write(buffer, 0, len);
+				bos.flush();
+				bos.close();
+				bis.close();
+				Thread.sleep(50);
+			}
+			zip.close();
+		} catch (ZipException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+	
+	private String downloadThumbnail(RSSItem item,byte[] buffer){
+		File thumb=new File(new File(RssHelper.getArchivesDirInSdcard(),String.valueOf(item.getGuid())),"thumb96");
+		InputStream in=null;
+		FileOutputStream out=null;
+		try {
+			URLConnection con=NetworkHelper.buildUrlConnection(item.getThumbUrl());
+			con.connect();
+			in=con.getInputStream();
+			out=new FileOutputStream(thumb);
+			int len=0;
+			while((len=in.read(buffer))>0){
+				out.write(buffer,0,len);
+			}
+		} catch (IOException e) {
+			Log.e(TAG,"Downloa thumb error");
+			e.printStackTrace();
+			return null;
+		} finally {
+			try {
+				out.close();
+				in.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return thumb.getAbsolutePath();
 	}
 	
 	static final String[] PROJECTION={Archives._ID,Archives.GUID};
