@@ -102,6 +102,7 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 		Intent i=new Intent();
 		i.setClass(this, Archive.class);
 		i.putExtra("path", f.getAbsolutePath());
+		//i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 		startActivity(i);
 	}
 	
