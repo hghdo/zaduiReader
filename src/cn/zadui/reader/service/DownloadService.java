@@ -112,6 +112,9 @@ public class DownloadService extends Service {
 				if(listener!=null) listener.onStateChanged(ServiceState.ERROR,ce.getMessage());
 				ce.printStackTrace();
 			}
+			
+			//delete old items
+			
 			listener=null;
 			isRunning=false;
 			DownloadService.this.stopSelf();
@@ -145,7 +148,6 @@ public class DownloadService extends Service {
 			out.close();
 			in.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			Log.e(TAG,"Downloa zip file error");
 			e.printStackTrace();
 			return false;
@@ -179,15 +181,12 @@ public class DownloadService extends Service {
 			}
 			zip.close();
 		} catch (ZipException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
 		}
@@ -220,6 +219,14 @@ public class DownloadService extends Service {
 			}
 		}
 		return thumb.getAbsolutePath();
+	}
+	
+	private int cleanArchiveList(){
+		int cleaned=0;
+		
+		//cleaned=DownloadService.this.getContentResolver().delete(url, where, selectionArgs)
+		
+		return cleaned;
 	}
 	
 	static final String[] PROJECTION={Archives._ID,Archives.GUID};

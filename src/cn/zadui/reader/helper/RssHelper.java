@@ -26,6 +26,10 @@ public class RssHelper {
 		return cv;
 	}
 	
+	public static File getArchiveDir(long archiveId){
+		return new File(getArchivesDirInSdcard(),String.valueOf(archiveId));
+	}
+	
 	public static File getAppDirInSdcard(){
 		File sdcard=Environment.getExternalStorageDirectory();
 		File zaduiHome=new File(sdcard,"zaduiReader");
@@ -58,4 +62,19 @@ public class RssHelper {
 		}	
 		return (mExternalStorageAvailable && mExternalStorageWriteable);		
 	}
+	
+	public static boolean deleteDirectory(File path) {
+		if (path.exists()) {
+			File[] files = path.listFiles();
+			for (int i = 0; i < files.length; i++) {
+				if (files[i].isDirectory()) {
+					deleteDirectory(files[i]);
+				} else {
+					files[i].delete();
+				}
+			}
+		}
+		return (path.delete());
+	}	
+	
 }

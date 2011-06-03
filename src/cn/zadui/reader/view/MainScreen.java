@@ -97,7 +97,7 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
-		File f=new File(new File(RssHelper.getArchivesDirInSdcard(),String.valueOf(id)),String.valueOf(id)+".html");
+		File f=new File(RssHelper.getArchiveDir(id),String.valueOf(id)+".html");
 		Log.d(TAG,"Clicked file is =>"+f.getAbsolutePath());
 		Intent i=new Intent();
 		i.setClass(this, Archive.class);

@@ -31,6 +31,7 @@ public class ReaderArchiveProvider extends ContentProvider {
     private static final int ARCHIVES = 1;
     private static final int ARCHIVE_ID = 2;
     private static final int ARCHIVE_GUID=3;
+    private static final int CLEAN_ARCHIVE=4;
 
     private static final UriMatcher sUriMatcher;
 
@@ -235,6 +236,7 @@ public class ReaderArchiveProvider extends ContentProvider {
         sUriMatcher.addURI(ReaderArchive.AUTHORITY, "archives", ARCHIVES);
         sUriMatcher.addURI(ReaderArchive.AUTHORITY, "archives/#", ARCHIVE_ID);
         sUriMatcher.addURI(ReaderArchive.AUTHORITY, "archives/guid/#", ARCHIVE_GUID);
+        sUriMatcher.addURI(ReaderArchive.AUTHORITY, "archives/clean", CLEAN_ARCHIVE);
         //sUriMatcher.addURI(ReaderArchive.AUTHORITY, "live_folders/notes", LIVE_FOLDER_NOTES);
 
         sArchivesProjectionMap = new HashMap<String, String>();

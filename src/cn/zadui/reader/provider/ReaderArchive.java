@@ -15,6 +15,8 @@ public final class ReaderArchive {
 		
 		public static final Uri CONTENT_URI=Uri.parse("content://"+AUTHORITY+"/archives");
 		
+		public static final Uri ARCHIVE_CLEAN_URI=Uri.parse("content://"+AUTHORITY+"/archives/clean");
+		
 		public static final Uri ARCHIVE_GUID_URI=Uri.parse("content://"+AUTHORITY+"/archives/guid");
 		
 		public static final String DEFAULT_SORT_ORDER = "pubDate DESC";
