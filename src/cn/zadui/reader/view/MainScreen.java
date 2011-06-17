@@ -10,6 +10,7 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -50,6 +51,10 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        setProgressBarIndeterminateVisibility(DownloadService.isRunning);
+        
 		//downloadArchiveRSS();
         
         setContentView(R.layout.main);
@@ -109,6 +114,14 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 
 	@Override
 	public void onStateChanged(ServiceState state, String info) {
+		this.runOnUiThread(new Runnable(){
+			@Override
+			public void run(){
+				setProgressBarIndeterminateVisibility(DownloadService.isRunning);
+				//if(state==DownloadService.ServiceState.SUCCESSED) adapter.notifyDataSetInvalidated();
+			}
+			
+		});
 		if(state==DownloadService.ServiceState.SUCCESSED)
 			this.runOnUiThread(new Runnable(){
 				@Override

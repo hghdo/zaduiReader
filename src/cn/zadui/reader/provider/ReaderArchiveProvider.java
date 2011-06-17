@@ -2,6 +2,7 @@ package cn.zadui.reader.provider;
 
 import java.util.HashMap;
 
+import cn.zadui.reader.helper.Settings;
 import cn.zadui.reader.provider.ReaderArchive.Archives;
 
 import android.content.ContentProvider;
@@ -10,6 +11,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -31,7 +33,7 @@ public class ReaderArchiveProvider extends ContentProvider {
     private static final int ARCHIVES = 1;
     private static final int ARCHIVE_ID = 2;
     private static final int ARCHIVE_GUID=3;
-    private static final int CLEAN_ARCHIVE=4;
+    private static final int OLD_ARCHIVES=4;
 
     private static final UriMatcher sUriMatcher;
 
@@ -88,6 +90,13 @@ public class ReaderArchiveProvider extends ContentProvider {
         case ARCHIVE_ID:
             String noteId = uri.getPathSegments().get(1);
             count = db.delete(ARCHIVES_TABLE_NAME, Archives._ID + "=" + noteId
+                    + (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : ""), whereArgs);
+            break;
+
+        case ARCHIVE_GUID:
+        	String guid=uri.getPathSegments().get(2);
+        	Log.d(TAG,"Query by guid ==>"+guid);
+            count = db.delete(ARCHIVES_TABLE_NAME, Archives.GUID + "=" + guid
                     + (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : ""), whereArgs);
             break;
 
@@ -169,6 +178,21 @@ public class ReaderArchiveProvider extends ContentProvider {
             qb.setProjectionMap(sArchivesProjectionMap);
             break;
 
+        case OLD_ARCHIVES:
+        	long maxSize = Settings.getMaxArchiveListSize(getContext());
+        	long size=DatabaseUtils.queryNumEntries(mOpenHelper.getReadableDatabase(), ARCHIVES_TABLE_NAME);
+        	if (size > maxSize){
+        		return null;
+        	}else{
+                qb.setProjectionMap(sArchivesProjectionMap);
+                Cursor cc = qb.query(
+                		mOpenHelper.getReadableDatabase(), 
+                		projection, selection, selectionArgs, null, null, 
+                		ReaderArchive.Archives.PUB_DATE, 
+                		String.valueOf(size-maxSize));
+                return cc;
+        	}
+
         case ARCHIVE_ID:
             qb.setProjectionMap(sArchivesProjectionMap);
             qb.appendWhere(Archives._ID + "=" + uri.getPathSegments().get(1));
@@ -236,7 +260,7 @@ public class ReaderArchiveProvider extends ContentProvider {
         sUriMatcher.addURI(ReaderArchive.AUTHORITY, "archives", ARCHIVES);
         sUriMatcher.addURI(ReaderArchive.AUTHORITY, "archives/#", ARCHIVE_ID);
         sUriMatcher.addURI(ReaderArchive.AUTHORITY, "archives/guid/#", ARCHIVE_GUID);
-        sUriMatcher.addURI(ReaderArchive.AUTHORITY, "archives/clean", CLEAN_ARCHIVE);
+        sUriMatcher.addURI(ReaderArchive.AUTHORITY, "archives/old", OLD_ARCHIVES);
         //sUriMatcher.addURI(ReaderArchive.AUTHORITY, "live_folders/notes", LIVE_FOLDER_NOTES);
 
         sArchivesProjectionMap = new HashMap<String, String>();

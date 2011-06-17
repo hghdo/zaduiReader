@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="hello">Hello World, MainScreen!</string>
-    <string name="app_name">zaduiReader</string>
+    <string name="app_name">美丽日志</string>
     
     <string name="site_rss_url">http://172.29.1.67:3000/archives/rss.xml</string>
+    
+    <string name="refresh">刷新</string>
+    <string name="advise">改进</string>
 </resources>

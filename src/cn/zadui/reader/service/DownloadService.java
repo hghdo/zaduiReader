@@ -24,7 +24,6 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
 import cn.zadui.reader.helper.NetworkHelper;
@@ -33,8 +32,8 @@ import cn.zadui.reader.provider.ReaderArchive.Archives;
 
 public class DownloadService extends Service {
 
-	//public static final String FEED_URL="http://172.29.1.67:3389/archives/feed.xml";
-	public static final String FEED_URL="http://192.168.1.104:3000/archives/feed.xml";
+	public static final String FEED_URL="http://172.29.1.67:3389/archives/feed.xml";
+	//public static final String FEED_URL="http://192.168.1.104:3000/archives/feed.xml";
 	
 	public static StateListener listener;
 	
@@ -63,13 +62,18 @@ public class DownloadService extends Service {
 	}
     
 	public enum ServiceState {
-		DOWNLOADING, SUCCESSED, ERROR;
+		DOWNLOADING, SUCCESSED, ERROR,STOP;
     }	
 	
 	public interface StateListener{
 		public void onStateChanged(ServiceState state,String info);
 	}
 	
+	/**
+	 * TODO Optimize the logic.
+	 * @author david
+	 *
+	 */
 	private class DownloadThread extends Thread{
 		@Override
 		public void run(){
@@ -114,9 +118,22 @@ public class DownloadService extends Service {
 			}
 			
 			//delete old items
+			Cursor oldItems=DownloadService.this.getContentResolver().query(Archives.OLD_ARCHIVES_URI, PROJECTION, null, null,
+	                Archives.DEFAULT_SORT_ORDER);
+			if(oldItems!=null){
+				while(oldItems.moveToNext()){
+					long guid=oldItems.getLong(oldItems.getColumnIndex(Archives.GUID));
+					// Delete item in db
+					DownloadService.this.getContentResolver().delete(ContentUris.withAppendedId(Archives.ARCHIVE_GUID_URI,guid),null,null);
+					// Delete folder in sdcard
+					RssHelper.deleteDirectory(RssHelper.getArchiveDir(guid));
+				}
+				oldItems.close();
+			}
 			
-			listener=null;
 			isRunning=false;
+			if(listener!=null) listener.onStateChanged(ServiceState.STOP,"");
+			listener=null;
 			DownloadService.this.stopSelf();
 		}
 	}
@@ -166,7 +183,7 @@ public class DownloadService extends Service {
 					new File(RssHelper.getArchivesDirInSdcard(),entry.getName()).mkdirs();
 					continue;
 				}
-				BufferedInputStream bis=new BufferedInputStream(zip.getInputStream(entry));
+				BufferedInputStream bis=new BufferedInputStream(zip.getInputStream(entry),8*1024);
 				File img=new File(RssHelper.getArchivesDirInSdcard(),entry.getName());
 				Log.d(TAG,"Unzip file => "+img.getPath());
 				File parent=img.getParentFile();
@@ -177,7 +194,7 @@ public class DownloadService extends Service {
 				bos.flush();
 				bos.close();
 				bis.close();
-				Thread.sleep(50);
+				Thread.sleep(30);
 			}
 			zip.close();
 		} catch (ZipException e) {
@@ -219,14 +236,6 @@ public class DownloadService extends Service {
 			}
 		}
 		return thumb.getAbsolutePath();
-	}
-	
-	private int cleanArchiveList(){
-		int cleaned=0;
-		
-		//cleaned=DownloadService.this.getContentResolver().delete(url, where, selectionArgs)
-		
-		return cleaned;
 	}
 	
 	static final String[] PROJECTION={Archives._ID,Archives.GUID};

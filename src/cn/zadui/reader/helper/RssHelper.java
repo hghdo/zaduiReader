@@ -26,8 +26,8 @@ public class RssHelper {
 		return cv;
 	}
 	
-	public static File getArchiveDir(long archiveId){
-		return new File(getArchivesDirInSdcard(),String.valueOf(archiveId));
+	public static File getArchiveDir(long archiveGuid){
+		return new File(getArchivesDirInSdcard(),String.valueOf(archiveGuid));
 	}
 	
 	public static File getAppDirInSdcard(){
