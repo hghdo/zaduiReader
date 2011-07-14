@@ -126,28 +126,7 @@ public class ReaderArchiveProvider extends ContentProvider {
             values = new ContentValues(initialValues);
         } else {
             values = new ContentValues();
-        }
-
-//        Long now = Long.valueOf(System.currentTimeMillis());
-
-        // Make sure that the fields are all set
-//        if (values.containsKey(Archives.PUB_DATE) == false) {
-//            values.put(NotePad.Notes.CREATED_DATE, now);
-//        }
-
-//        if (values.containsKey(NotePad.Notes.MODIFIED_DATE) == false) {
-//            values.put(NotePad.Notes.MODIFIED_DATE, now);
-//        }
-
-//        if (values.containsKey(NotePad.Notes.TITLE) == false) {
-//            Resources r = Resources.getSystem();
-//            values.put(NotePad.Notes.TITLE, r.getString(android.R.string.untitled));
-//        }
-//
-//        if (values.containsKey(NotePad.Notes.NOTE) == false) {
-//            values.put(NotePad.Notes.NOTE, "");
-//        }
-        
+        }  
         
 	    if (values.containsKey(Archives.READED) == false) {
 	      values.put(Archives.READED, false);
@@ -181,14 +160,14 @@ public class ReaderArchiveProvider extends ContentProvider {
         case OLD_ARCHIVES:
         	long maxSize = Settings.getMaxArchiveListSize(getContext());
         	long size=DatabaseUtils.queryNumEntries(mOpenHelper.getReadableDatabase(), ARCHIVES_TABLE_NAME);
-        	if (size > maxSize){
+        	if (size <= maxSize){
         		return null;
         	}else{
                 qb.setProjectionMap(sArchivesProjectionMap);
                 Cursor cc = qb.query(
                 		mOpenHelper.getReadableDatabase(), 
                 		projection, selection, selectionArgs, null, null, 
-                		ReaderArchive.Archives.PUB_DATE, 
+                		ReaderArchive.Archives.READED+" desc,"+ReaderArchive.Archives.PUB_DATE, 
                 		String.valueOf(size-maxSize));
                 return cc;
         	}
