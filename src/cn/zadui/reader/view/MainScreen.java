@@ -3,19 +3,16 @@ package cn.zadui.reader.view;
 import java.io.File;
 
 import android.app.ListActivity;
-import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.SimpleCursorAdapter;
 import cn.zadui.reader.R;
 import cn.zadui.reader.helper.ImageHelper;
@@ -46,22 +43,24 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
     private static final int COLUMN_INDEX_TITLE = 1;
     
     SimpleCursorAdapter adapter;
-    Button btnRefresh;
+    ImageView btnRefresh;
+    ProgressBar downProgress;
     Cursor cursor;
 	//ImageView thumb;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-        setProgressBarIndeterminateVisibility(DownloadService.isRunning);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);   
+        //requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        //setProgressBarIndeterminateVisibility(DownloadService.isRunning);
         
 		//downloadArchiveRSS();
         
         setContentView(R.layout.main);
-        btnRefresh=(Button)this.findViewById(R.id.btn_refresh);
+        btnRefresh=(ImageView)this.findViewById(R.id.btn_refresh);
         btnRefresh.setOnClickListener(this);
+        downProgress=(ProgressBar)findViewById(R.id.pb_download);
         // If no data was given in the intent (because we were started
         // as a MAIN activity), then use our default content provider.
         Intent intent = getIntent();
@@ -109,6 +108,8 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 
 	@Override
 	public void onClick(View v) {
+		btnRefresh.setVisibility(View.GONE);
+		downProgress.setVisibility(View.VISIBLE);
 		DownloadService.listener=this;
 		startService(new Intent(this,DownloadService.class));
 	}
@@ -130,10 +131,9 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 		this.runOnUiThread(new Runnable(){
 			@Override
 			public void run(){
-				setProgressBarIndeterminateVisibility(DownloadService.isRunning);
+				//setProgressBarIndeterminateVisibility(DownloadService.isRunning);
 				//if(state==DownloadService.ServiceState.SUCCESSED) adapter.notifyDataSetInvalidated();
 			}
-			
 		});
 		if(state==DownloadService.ServiceState.SUCCESSED)
 			this.runOnUiThread(new Runnable(){
