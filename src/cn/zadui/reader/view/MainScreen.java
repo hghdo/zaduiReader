@@ -136,7 +136,7 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 				//if(state==DownloadService.ServiceState.SUCCESSED) adapter.notifyDataSetInvalidated();
 			}
 		});
-		if(state==DownloadService.ServiceState.SUCCESSED)
+		if(state==DownloadService.ServiceState.FINISHED)
 			this.runOnUiThread(new Runnable(){
 				@Override
 				public void run(){

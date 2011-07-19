@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
@@ -98,21 +99,21 @@ public class DownloadService extends Service {
 					DownloadService.this.stopSelf();
 					return;
 				}
+				// Fetch all GUIDs of archive
+		        Cursor cursor = DownloadService.this.getContentResolver().query(Archives.CONTENT_URI, PROJECTION, null, null,
+		                Archives.DEFAULT_SORT_ORDER);
+		        HashSet<Long> guids=new HashSet<Long>();
+		        while(cursor.moveToNext()){
+		        	guids.add(cursor.getLong(cursor.getColumnIndex(Archives.GUID)));
+		        }
+		        cursor.close();
 				Log.d(TAG,"Items size is ==> "+String.valueOf(feed.getItems().size()));
 				for (Iterator<RSSItem> iter = feed.getItems().iterator(); iter.hasNext();) {
 					//Did this item already existed?
 					RSSItem item=iter.next();
 					Log.d(TAG,"Item in feed ==>"+item.getTitle());
-					// TODO After fetch a new RSS get all existed archive GUID in one query and save GUIDs to an array.
-					// Later will use this array to justify whether archive in RSS is new.
-					Cursor cursor=DownloadService.this.getContentResolver().query(
-							ContentUris.withAppendedId(Archives.ARCHIVE_GUID_URI,Long.valueOf(item.getGuid())),
-							PROJECTION, null, null,
-							Archives.DEFAULT_SORT_ORDER);
-					boolean existed=(cursor.getCount()>0);
-					cursor.close();
-					if(existed) continue;
-					ContentValues cv=RssHelper.feedItemToContentValues(item);					
+					if (guids.contains(Long.valueOf(item.getGuid()))) continue;
+					ContentValues cv=RssHelper.feedItemToContentValues(item);
 					if(handleZipPkg(item,buffer)){
 						cv.put(Archives.CAHECED, true);
 						//cv.put(Archives.THUMB_URL, "");
@@ -227,6 +228,12 @@ public class DownloadService extends Service {
 		return true;
 	}
 	
+	/**
+	 * TODO Remove hard code 'thumb96' here.
+	 * @param item
+	 * @param buffer
+	 * @return
+	 */
 	private String downloadThumbnail(RSSItem item,byte[] buffer){
 		File thumb=new File(new File(RssHelper.getArchivesDirInSdcard(),String.valueOf(item.getGuid())),"thumb96");
 		InputStream in=null;
