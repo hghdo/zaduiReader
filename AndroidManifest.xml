@@ -19,7 +19,13 @@
             </intent-filter>
         </activity>
         <activity android:name=".view.Archive"/>
-		<service android:name=".service.DownloadService" android:exported="false"></service>        
+		<service android:name=".service.DownloadService" android:exported="false"></service>  
+		
+		<receiver android:name="">
+			<intent-filter>
+				<action android:name="android.net.wifi.WIFI_STATE_CHANGED" />
+			</intent-filter>
+		</receiver>     
 
     </application>
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>

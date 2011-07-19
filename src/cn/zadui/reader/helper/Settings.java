@@ -41,6 +41,17 @@ public class Settings {
 		editor.commit();
 	}
 	
+	public static String getLastFeedPubDate(Context ctx){
+		return getSharedPreferences(ctx).getString(PRE_LAST_FEED_PUB_DATE, "");		
+	}
+	
+	public static void updateLastFeedPubDate(Context ctx,String pubDate){
+		SharedPreferences spSettings=getSharedPreferences(ctx);//.getSharedPreferences(PrefStore.PREFS_NAME, 0);
+		SharedPreferences.Editor editor = spSettings.edit();
+		editor.putString(PRE_LAST_FEED_PUB_DATE, pubDate);
+		editor.commit();
+	}
+	
     public static SharedPreferences getSharedPreferences(Context ctx) {
         return PreferenceManager.getDefaultSharedPreferences(ctx);
     }

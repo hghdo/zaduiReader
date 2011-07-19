@@ -28,8 +28,14 @@ import android.os.IBinder;
 import android.util.Log;
 import cn.zadui.reader.helper.NetworkHelper;
 import cn.zadui.reader.helper.RssHelper;
+import cn.zadui.reader.helper.Settings;
 import cn.zadui.reader.provider.ReaderArchive.Archives;
 
+/**
+ * 
+ * @author David
+ *
+ */
 public class DownloadService extends Service {
 
 	public static final String FEED_URL="http://172.29.1.67:3389/archives/feed.xml";
@@ -62,7 +68,7 @@ public class DownloadService extends Service {
 	}
     
 	public enum ServiceState {
-		DOWNLOADING, SUCCESSED, ERROR,STOP;
+		WORKING, FINISHED, ERROR, STOP;
     }	
 	
 	public interface StateListener{
@@ -78,17 +84,27 @@ public class DownloadService extends Service {
 		@Override
 		public void run(){
 			isRunning=true;
-	    	if (listener!=null)	listener.onStateChanged(ServiceState.DOWNLOADING,"");
+	    	if (listener!=null)	listener.onStateChanged(ServiceState.WORKING,"");
 			RSSReader reader = new RSSReader();
 			RSSFeed feed;
 			byte[] buffer=new byte[8*1024];		
 			try {
-				feed = reader.load(FEED_URL);		
+				feed = reader.load(FEED_URL);	
+				feed.getPubDate();
+				if (feed.getPubDate().toGMTString().equals(Settings.getLastFeedPubDate(DownloadService.this))){
+					isRunning=false;
+					if(listener!=null) listener.onStateChanged(ServiceState.FINISHED,"");
+					listener=null;
+					DownloadService.this.stopSelf();
+					return;
+				}
 				Log.d(TAG,"Items size is ==> "+String.valueOf(feed.getItems().size()));
 				for (Iterator<RSSItem> iter = feed.getItems().iterator(); iter.hasNext();) {
 					//Did this item already existed?
 					RSSItem item=iter.next();
 					Log.d(TAG,"Item in feed ==>"+item.getTitle());
+					// TODO After fetch a new RSS get all existed archive GUID in one query and save GUIDs to an array.
+					// Later will use this array to justify whether archive in RSS is new.
 					Cursor cursor=DownloadService.this.getContentResolver().query(
 							ContentUris.withAppendedId(Archives.ARCHIVE_GUID_URI,Long.valueOf(item.getGuid())),
 							PROJECTION, null, null,
@@ -108,7 +124,8 @@ public class DownloadService extends Service {
 					Uri mUri = DownloadService.this.getContentResolver().insert(Archives.CONTENT_URI, cv);	
 					Log.d(TAG,"Get a new archive");
 				}
-				if(listener!=null) listener.onStateChanged(ServiceState.SUCCESSED,"");
+				// Update feed time stamp
+				Settings.updateLastFeedPubDate(DownloadService.this,feed.getPubDate().toGMTString());
 			} catch (RSSReaderException e) {
 				if(listener!=null) listener.onStateChanged(ServiceState.ERROR,e.getMessage());
 				e.printStackTrace();
@@ -132,7 +149,7 @@ public class DownloadService extends Service {
 			}
 			
 			isRunning=false;
-			if(listener!=null) listener.onStateChanged(ServiceState.STOP,"");
+			if(listener!=null) listener.onStateChanged(ServiceState.FINISHED,"");
 			listener=null;
 			DownloadService.this.stopSelf();
 		}
@@ -224,7 +241,7 @@ public class DownloadService extends Service {
 				out.write(buffer,0,len);
 			}
 		} catch (IOException e) {
-			Log.e(TAG,"Downloa thumb error");
+			Log.e(TAG,"Download thumb error");
 			e.printStackTrace();
 			return null;
 		} finally {

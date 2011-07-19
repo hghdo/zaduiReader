@@ -1,5 +1,7 @@
 package cn.zadui.reader.provider;
 
+import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
@@ -58,6 +60,10 @@ public final class ReaderArchive {
         public static final String READED="readed";
         
         public static final String CAHECED="cached";
+        
+//        public static Cursor getAll(Context ctx,String[] project,String order){
+//        	return ctx.managedQuery(CONTENT_URI, project, null, null,DEFAULT_SORT_ORDER);
+//        }
 
         
 	}
