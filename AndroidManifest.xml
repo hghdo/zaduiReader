@@ -21,7 +21,7 @@
         <activity android:name=".view.Archive"/>
 		<service android:name=".service.DownloadService" android:exported="false"></service>  
 		
-		<receiver android:name="">
+		<receiver android:name=".service.NetworkChangedReceiver">
 			<intent-filter>
 				<action android:name="android.net.wifi.WIFI_STATE_CHANGED" />
 			</intent-filter>
