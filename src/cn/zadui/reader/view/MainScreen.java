@@ -128,21 +128,23 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 	
 
 	@Override
-	public void onStateChanged(ServiceState state, String info) {
+	public void onStateChanged(final ServiceState state, String info) {
 		this.runOnUiThread(new Runnable(){
 			@Override
 			public void run(){
-				//setProgressBarIndeterminateVisibility(DownloadService.isRunning);
-				//if(state==DownloadService.ServiceState.SUCCESSED) adapter.notifyDataSetInvalidated();
+				if (state==DownloadService.ServiceState.WORKING){
+					btnRefresh.setVisibility(View.GONE);
+					downProgress.setVisibility(View.VISIBLE);
+				}else if (state==DownloadService.ServiceState.FINISHED){
+					adapter.notifyDataSetInvalidated();
+					btnRefresh.setVisibility(View.VISIBLE);
+					downProgress.setVisibility(View.GONE);
+				}else if (state==DownloadService.ServiceState.ERROR){
+					btnRefresh.setVisibility(View.VISIBLE);
+					downProgress.setVisibility(View.GONE);
+				}
 			}
 		});
-		if(state==DownloadService.ServiceState.FINISHED)
-			this.runOnUiThread(new Runnable(){
-				@Override
-				public void run(){
-					adapter.notifyDataSetInvalidated();
-				}
-			});
 	}
 	
     
