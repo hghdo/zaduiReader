@@ -16,7 +16,7 @@ public class Settings {
 	
 	
 	public static int getMaxArchiveListSize(Context ctx){
-		return getSharedPreferences(ctx).getInt(PRE_MAX_ARCHIVE_LIST_SIZE, 30);
+		return getSharedPreferences(ctx).getInt(PRE_MAX_ARCHIVE_LIST_SIZE, 5);
 	}
 	
 	public static void updateMaxArchiveListSize(Context ctx,int size){

@@ -21,7 +21,7 @@ public class RssHelper {
 		cv.put(Archives.DESC, item.getDescription());
 		cv.put(Archives.LINK, item.getLink().toString());
 		cv.put(Archives.THUMB_URL, item.getThumbUrl());
-		//cv.put(Archives.PUB_DATE, item.getPubDate());
+		cv.put(Archives.PUB_DATE, item.getPubDate().getTime());
 		Log.d(TAG,item.getGuid()+"|"+item.getTitle()+"|"+item.getDescription());
 		return cv;
 	}

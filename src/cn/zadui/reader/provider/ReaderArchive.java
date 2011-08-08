@@ -1,7 +1,5 @@
 package cn.zadui.reader.provider;
 
-import android.content.Context;
-import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
@@ -12,17 +10,6 @@ public final class ReaderArchive {
 	private ReaderArchive(){}
 	
 	public static final class Archives implements BaseColumns{
-		
-		private Archives(){}
-		
-		public static final Uri CONTENT_URI=Uri.parse("content://"+AUTHORITY+"/archives");
-		
-		public static final Uri OLD_ARCHIVES_URI=Uri.parse("content://"+AUTHORITY+"/archives/old");
-		
-		public static final Uri ARCHIVE_GUID_URI=Uri.parse("content://"+AUTHORITY+"/archives/guid");
-		
-		
-		public static final String DEFAULT_SORT_ORDER = "pubDate DESC";
 
         /**
          * The note itself
@@ -55,11 +42,24 @@ public final class ReaderArchive {
          */
         public static final String PUB_DATE = "pubDate";
         
+        //public static final String CREATED_AT = "createdAt";
+        
         public static final String THUMB_URL="thumbUrl";
         
         public static final String READED="readed";
         
         public static final String CAHECED="cached";
+		
+		private Archives(){}
+		
+		public static final Uri CONTENT_URI=Uri.parse("content://"+AUTHORITY+"/archives");
+		
+		public static final Uri OLD_ARCHIVES_URI=Uri.parse("content://"+AUTHORITY+"/archives/old");
+		
+		public static final Uri ARCHIVE_GUID_URI=Uri.parse("content://"+AUTHORITY+"/archives/guid");
+		
+		
+		public static final String DEFAULT_SORT_ORDER = PUB_DATE +" DESC";
         
 //        public static Cursor getAll(Context ctx,String[] project,String order){
 //        	return ctx.managedQuery(CONTENT_URI, project, null, null,DEFAULT_SORT_ORDER);
