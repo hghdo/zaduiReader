@@ -2,45 +2,30 @@ package cn.zadui.reader.helper;
 
 import java.io.File;
 
-import org.mcsoxford.rss.RSSItem;
-
-import android.content.ContentValues;
 import android.os.Environment;
-import android.util.Log;
-import cn.zadui.reader.provider.ReaderArchive.Archives;
 
-public class RssHelper {
+public class StorageHelper {
 	
-	public static final String TAG="RssHelper";
+	private String appPkgName;
+	private File appExtStorageRoot;
 	
-	public static ContentValues feedItemToContentValues(RSSItem item){
-		ContentValues cv=new ContentValues();
-		cv.put(Archives._ID, Long.valueOf(item.getGuid()));
-		cv.put(Archives.GUID, item.getGuid());
-		cv.put(Archives.TITLE, item.getTitle());
-		cv.put(Archives.DESC, item.getDescription());
-		cv.put(Archives.LINK, item.getLink().toString());
-		cv.put(Archives.THUMB_URL, item.getThumbUrl());
-		cv.put(Archives.PUB_DATE, item.getPubDate().getTime());
-		Log.d(TAG,item.getGuid()+"|"+item.getTitle()+"|"+item.getDescription());
-		return cv;
-	}
-	
-	/*
-	
-	public static File getArchiveDir(long archiveGuid,String pkg){
-		return new File(getArchivesDirInSdcard(pkg),String.valueOf(archiveGuid));
-	}
-	
-	public static File getAppDirInSdcard(String pkg){
+	public StorageHelper(String packageName){
+		appPkgName=packageName;
 		File sdcard=Environment.getExternalStorageDirectory();
-		File zaduiHome=new File(sdcard,"Android/data/"+pkg+"/cache");
-		if(!zaduiHome.exists())zaduiHome.mkdirs();
-		return zaduiHome;
+		appExtStorageRoot=new File(sdcard,"Android/data/"+appPkgName);
+		if(!appExtStorageRoot.exists())appExtStorageRoot.mkdirs();	
+	}
+
+	public File getArchiveDir(long archiveGuid){
+		return new File(getArchivesDirInSdcard(),String.valueOf(archiveGuid));
 	}
 	
-	public static File getArchivesDirInSdcard(String pkg){
-		File adir=new File(getAppDirInSdcard(pkg),"archives");
+	public File getAppExtStorageRoot(){
+		return appExtStorageRoot;
+	}
+	
+	public File getArchivesDirInSdcard(){
+		File adir=new File(getAppExtStorageRoot(),"cache/archives");
 		adir.mkdirs();
 		return adir;
 	}
@@ -79,6 +64,5 @@ public class RssHelper {
 		return (path.delete());
 	}	
 	
-	*/
 	
 }

@@ -30,11 +30,13 @@ import android.util.Log;
 import cn.zadui.reader.helper.NetworkHelper;
 import cn.zadui.reader.helper.RssHelper;
 import cn.zadui.reader.helper.Settings;
+import cn.zadui.reader.helper.StorageHelper;
 import cn.zadui.reader.provider.ReaderArchive.Archives;
 
 /**
  * 
  * @author David
+ * TODO 
  *
  */
 public class DownloadService extends Service {
@@ -45,6 +47,8 @@ public class DownloadService extends Service {
 	public static StateListener listener;
 	
 	public static boolean isRunning=false;
+	
+	private StorageHelper storageHelper;
 	
 	@Override
 	public IBinder onBind(Intent arg0) {
@@ -65,7 +69,14 @@ public class DownloadService extends Service {
 	
 	private void handleCommand(Intent intent){
 		if(isRunning) return;
+		storageHelper=new StorageHelper(getPackageName());
 		(new DownloadThread()).start();
+	}
+	
+	@Override
+	public void onDestroy(){
+		storageHelper=null;
+		super.onDestroy();
 	}
     
 	public enum ServiceState {
@@ -144,7 +155,7 @@ public class DownloadService extends Service {
 					// Delete item in db
 					DownloadService.this.getContentResolver().delete(ContentUris.withAppendedId(Archives.ARCHIVE_GUID_URI,guid),null,null);
 					// Delete folder in sdcard
-					RssHelper.deleteDirectory(RssHelper.getArchiveDir(guid));
+					StorageHelper.deleteDirectory(storageHelper.getArchiveDir(guid));
 				}
 				oldItems.close();
 			}
@@ -164,13 +175,13 @@ public class DownloadService extends Service {
 	 * @throws InterruptedException 
 	 */
 	private boolean handleZipPkg(RSSItem item,byte[] buffer){
-		if (!RssHelper.isSdcardWritable()) return false;
+		if (!StorageHelper.isSdcardWritable()) return false;
 		// Download the pkg.zip and extract it.
 		int len=0;
 		long st=System.currentTimeMillis();
 		Log.d(TAG,"Begin download zip file==>"+String.valueOf(st));
 		String zipFileName=item.getGuid()+".pkg.zip";
-		File targetZip=new File(RssHelper.getArchivesDirInSdcard(),zipFileName);
+		File targetZip=new File(storageHelper.getArchivesDirInSdcard(),zipFileName);
 		try {
 			URLConnection con=NetworkHelper.buildUrlConnection(item.getZipPkgUrl());
 			con.connect();
@@ -198,11 +209,11 @@ public class DownloadService extends Service {
 			while(entries.hasMoreElements()){
 				ZipEntry entry=(ZipEntry)entries.nextElement();
 				if(entry.isDirectory()){
-					new File(RssHelper.getArchivesDirInSdcard(),entry.getName()).mkdirs();
+					new File(storageHelper.getArchivesDirInSdcard(),entry.getName()).mkdirs();
 					continue;
 				}
 				BufferedInputStream bis=new BufferedInputStream(zip.getInputStream(entry),8*1024);
-				File img=new File(RssHelper.getArchivesDirInSdcard(),entry.getName());
+				File img=new File(storageHelper.getArchivesDirInSdcard(),entry.getName());
 				Log.d(TAG,"Unzip file => "+img.getPath());
 				File parent=img.getParentFile();
 				if(parent!=null && !parent.exists()) parent.mkdirs();
@@ -215,6 +226,8 @@ public class DownloadService extends Service {
 				Thread.sleep(30);
 			}
 			zip.close();
+			// delete target zip file
+			targetZip.delete();
 		} catch (ZipException e) {
 			e.printStackTrace();
 			return false;
@@ -235,7 +248,7 @@ public class DownloadService extends Service {
 	 * @return
 	 */
 	private String downloadThumbnail(RSSItem item,byte[] buffer){
-		File thumb=new File(new File(RssHelper.getArchivesDirInSdcard(),String.valueOf(item.getGuid())),"thumb96");
+		File thumb=new File(new File(storageHelper.getArchivesDirInSdcard(),String.valueOf(item.getGuid())),"thumb96");
 		InputStream in=null;
 		FileOutputStream out=null;
 		try {

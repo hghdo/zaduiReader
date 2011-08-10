@@ -18,6 +18,7 @@ import android.widget.SimpleCursorAdapter;
 import cn.zadui.reader.R;
 import cn.zadui.reader.helper.ImageHelper;
 import cn.zadui.reader.helper.RssHelper;
+import cn.zadui.reader.helper.StorageHelper;
 import cn.zadui.reader.provider.ReaderArchive.Archives;
 import cn.zadui.reader.service.DownloadService;
 import cn.zadui.reader.service.DownloadService.ServiceState;
@@ -47,6 +48,7 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
     ImageView btnRefresh;
     ProgressBar downProgress;
     Cursor cursor;
+    StorageHelper sh;
 	//ImageView thumb;
     
     @Override
@@ -68,7 +70,7 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
         if (intent.getData() == null) {
             intent.setData(Archives.CONTENT_URI);
         }
-        
+        sh=new StorageHelper(getPackageName());
         // Perform a managed query. The Activity will handle closing and requerying the cursor
         // when needed.
         cursor = managedQuery(Archives.CONTENT_URI, PROJECTION, null, null,
@@ -94,7 +96,7 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 					return true;
 				}
 				if(columnIndex==cursor.getColumnIndex(Archives.THUMB_URL)){
-					File imgDir=new File(RssHelper.getArchivesDirInSdcard().getAbsolutePath(),cursor.getString(cursor.getColumnIndex(Archives.GUID)));
+					File imgDir=new File(sh.getArchivesDirInSdcard().getAbsolutePath(),cursor.getString(cursor.getColumnIndex(Archives.GUID)));
 					ImageView v=(ImageView)view;
 					Bitmap img=BitmapFactory.decodeFile(imgDir+"/thumb96");
 					v.setImageBitmap(ImageHelper.getRoundedCornerBitmap(img,5));
