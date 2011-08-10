@@ -22,8 +22,11 @@ import org.mcsoxford.rss.RSSReaderException;
 import android.app.Service;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.IBinder;
 import android.util.Log;
@@ -69,6 +72,14 @@ public class DownloadService extends Service {
 	
 	private void handleCommand(Intent intent){
 		if(isRunning) return;
+		ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+		if (activeNetworkInfo!=null){
+			Log.d(TAG,"network info =>" + activeNetworkInfo.getTypeName());
+		}else{
+			if(listener!=null) listener.onStateChanged(ServiceState.ERROR,"没有网络链接");
+			return;
+		}		
 		storageHelper=new StorageHelper(getPackageName());
 		(new DownloadThread()).start();
 	}
@@ -95,6 +106,7 @@ public class DownloadService extends Service {
 	private class DownloadThread extends Thread{
 		@Override
 		public void run(){
+			
 			isRunning=true;
 	    	if (listener!=null)	listener.onStateChanged(ServiceState.WORKING,"");
 			RSSReader reader = new RSSReader();

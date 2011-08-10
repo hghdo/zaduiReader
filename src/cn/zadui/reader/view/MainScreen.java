@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
@@ -15,9 +14,9 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SimpleCursorAdapter;
+import android.widget.Toast;
 import cn.zadui.reader.R;
 import cn.zadui.reader.helper.ImageHelper;
-import cn.zadui.reader.helper.RssHelper;
 import cn.zadui.reader.helper.StorageHelper;
 import cn.zadui.reader.provider.ReaderArchive.Archives;
 import cn.zadui.reader.service.DownloadService;
@@ -130,7 +129,7 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 	
 
 	@Override
-	public void onStateChanged(final ServiceState state, String info) {
+	public void onStateChanged(final ServiceState state, final String info) {
 		this.runOnUiThread(new Runnable(){
 			@Override
 			public void run(){
@@ -144,6 +143,7 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 				}else if (state==DownloadService.ServiceState.ERROR){
 					btnRefresh.setVisibility(View.VISIBLE);
 					downProgress.setVisibility(View.GONE);
+					Toast.makeText(MainScreen.this, info,Toast.LENGTH_SHORT).show();					
 				}
 			}
 		});
