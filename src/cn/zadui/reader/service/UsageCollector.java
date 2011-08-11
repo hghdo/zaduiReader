@@ -5,8 +5,10 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Calendar;
+import java.util.UUID;
 
 import android.content.Context;
+import android.telephony.TelephonyManager;
 import cn.zadui.reader.helper.FAQCalendar;
 import cn.zadui.reader.helper.Settings;
 
@@ -17,7 +19,7 @@ import cn.zadui.reader.helper.Settings;
  */
 public class UsageCollector {
 	
-	static final String HOUR_PREFER_STR="000000000000000000000000";
+	public static final String HOUR_PREFER_STR="000000000000000000000000";
 
 	public static void openApp(Context ctx){
 		long currentTime=System.currentTimeMillis();
@@ -43,14 +45,21 @@ public class UsageCollector {
 		}
 		Settings.updateLongPreferenceValue(ctx, Settings.PRE_LAST_OPENED_AT, System.currentTimeMillis());
 		// update hour prefer usage string
-		char[] preferUsageChars=Settings.getStringPreferenceValue(ctx, Settings.PRE_HOUR_PREFER_USAGE,HOUR_PREFER_STR).toCharArray();
-		int whichHour=now.get(Calendar.HOUR_OF_DAY);
-		preferUsageChars[whichHour]=numberToChar(Character.getNumericValue(preferUsageChars[whichHour])+1);
-		Settings.updateStringPreferenceValue(ctx, Settings.PRE_HOUR_PREFER_USAGE, new String(preferUsageChars));
+		String old=Settings.getStringPreferenceValue(ctx, Settings.PRE_HOUR_PREFER_USAGE,HOUR_PREFER_STR);
+		Settings.updateStringPreferenceValue(ctx, Settings.PRE_HOUR_PREFER_USAGE, updateHourPreferUsageString(now,old));		
 	}
 	
-	public static void clear(Context ctx){
-		
+	public static String updateHourPreferUsageString(Calendar now,String old){
+		char[] preferUsageChars=old.toCharArray();
+		int whichHour=now.get(Calendar.HOUR_OF_DAY);
+		preferUsageChars[whichHour]=numberToChar(Character.getNumericValue(preferUsageChars[whichHour])+1);
+		return new String(preferUsageChars);
+	}
+	
+	public static void resetCollectedData(Context ctx){
+		Settings.updateStringPreferenceValue(ctx, Settings.PRE_USAGE, "");
+		Settings.updateStringPreferenceValue(ctx, Settings.PRE_HOUR_PREFER_USAGE,HOUR_PREFER_STR);
+		Settings.updateLongPreferenceValue(ctx, Settings.PRE_COLLECTION_STARTED_AT, System.currentTimeMillis());
 	}
 	
 	/**
@@ -58,6 +67,8 @@ public class UsageCollector {
 	 * @param ctx
 	 */
 	public static void uploadCollectedUsageDate(Context ctx){
+		String usageStr=Settings.getStringPreferenceValue(ctx, Settings.PRE_USAGE,"");
+		if (usageStr.length()<5) return;
 		URL url;
 		try {
 			url = new URL("http://172.29.1.67:3389/collector");
@@ -69,12 +80,9 @@ public class UsageCollector {
 	        uc.getOutputStream().write(data.getBytes("UTF-8")); 
 	        uc.getOutputStream().close();
 	        if (uc.getResponseCode()==HttpURLConnection.HTTP_CREATED){
-	        	clear(ctx);
-	        }else{
-	        	// Do nothing
+	        	resetCollectedData(ctx);
 	        }
 	        uc.disconnect();
-			
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -96,9 +104,9 @@ public class UsageCollector {
 	 */
 	public static String generatePingStr(Context ctx){
 		StringBuilder sb=new StringBuilder();
-		sb.append("uid="+"");
-		sb.append("&from="+Settings.getStringPreferenceValue(ctx, Settings.PRE_COLLECTION_STARTED_AT, ""));
-		sb.append("&dev="+"");
+		sb.append("uid="+getDeviceId(ctx));
+		//sb.append("&from="+Settings.getLongPreferenceValue(ctx, Settings.PRE_COLLECTION_STARTED_AT, 0));
+		//sb.append("&dev="+"");
 		sb.append("&usage="+Settings.getStringPreferenceValue(ctx, Settings.PRE_USAGE, ""));
 		sb.append("&hour="+Settings.getStringPreferenceValue(ctx, Settings.PRE_HOUR_PREFER_USAGE, ""));
 		return sb.toString();
@@ -106,11 +114,20 @@ public class UsageCollector {
 	
 	public static char numberToChar(int value){
 		if (value>9){
-			return (char)(10-9+64);
+			return (char)(value-9+64);
 		}else{
 			return Character.forDigit(value, 10);
 		}
 	}
 	
-	//public static void 
+	public static String getDeviceId(Context ctx){
+		final TelephonyManager tm = (TelephonyManager)ctx.getSystemService(Context.TELEPHONY_SERVICE);
+	    String tmDevice, tmSerial, tmPhone, androidId;
+	    tmDevice = "" + tm.getDeviceId();
+	    tmSerial = "" + tm.getSimSerialNumber();
+	    androidId = "" + android.provider.Settings.Secure.getString(ctx.getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
+	    UUID deviceUuid = new UUID(androidId.hashCode(), ((long)tmDevice.hashCode() << 32) | tmSerial.hashCode());
+	    //String deviceId = deviceUuid.toString();
+	    return deviceUuid.toString();
+	}
 }

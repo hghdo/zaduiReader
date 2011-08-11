@@ -21,6 +21,7 @@ import cn.zadui.reader.helper.ImageHelper;
 import cn.zadui.reader.helper.StorageHelper;
 import cn.zadui.reader.provider.ReaderArchive.Archives;
 import cn.zadui.reader.service.DownloadService;
+import cn.zadui.reader.service.UsageCollector;
 import cn.zadui.reader.service.DownloadService.ServiceState;
 
 
@@ -101,9 +102,8 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 				return false;
 			}
 		});
-        
         setListAdapter(adapter);  
-        //Log.d(TAG,"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAonCreate");
+        UsageCollector.openApp(this.getApplicationContext());
     }
 
 	@Override

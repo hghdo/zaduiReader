@@ -30,7 +30,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.IBinder;
 import android.util.Log;
-import cn.zadui.reader.helper.NetworkHelper;
+import cn.zadui.reader.helper.NetHelper;
 import cn.zadui.reader.helper.RssHelper;
 import cn.zadui.reader.helper.Settings;
 import cn.zadui.reader.helper.StorageHelper;
@@ -106,7 +106,6 @@ public class DownloadService extends Service {
 	private class DownloadThread extends Thread{
 		@Override
 		public void run(){
-			
 			isRunning=true;
 	    	if (listener!=null)	listener.onStateChanged(ServiceState.WORKING,"");
 			RSSReader reader = new RSSReader();
@@ -172,6 +171,9 @@ public class DownloadService extends Service {
 				oldItems.close();
 			}
 			
+			// upload collected data to Server
+			UsageCollector.uploadCollectedUsageDate(DownloadService.this.getApplicationContext());
+			
 			isRunning=false;
 			if(listener!=null) listener.onStateChanged(ServiceState.FINISHED,"");
 			listener=null;
@@ -195,7 +197,7 @@ public class DownloadService extends Service {
 		String zipFileName=item.getGuid()+".pkg.zip";
 		File targetZip=new File(storageHelper.getArchivesDirInSdcard(),zipFileName);
 		try {
-			URLConnection con=NetworkHelper.buildUrlConnection(item.getZipPkgUrl());
+			URLConnection con=NetHelper.buildUrlConnection(item.getZipPkgUrl());
 			con.connect();
 			FileOutputStream out=new FileOutputStream(targetZip);
 			InputStream in=con.getInputStream();
@@ -264,7 +266,7 @@ public class DownloadService extends Service {
 		InputStream in=null;
 		FileOutputStream out=null;
 		try {
-			URLConnection con=NetworkHelper.buildUrlConnection(item.getThumbUrl());
+			URLConnection con=NetHelper.buildUrlConnection(item.getThumbUrl());
 			con.connect();
 			in=con.getInputStream();
 			out=new FileOutputStream(thumb);

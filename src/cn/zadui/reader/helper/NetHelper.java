@@ -9,21 +9,20 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 
-public class NetworkHelper {
+public class NetHelper {
 
 	public static final int CONNECT_TIMEOUT=20*1000;
 	public static final int READ_TIMEOUT=20*1000;
 	
-		
 	public static URLConnection buildUrlConnection(String url) throws IOException{
 		URL u=new URL(url);
 		HttpURLConnection con=(HttpURLConnection)u.openConnection();
-		con.setConnectTimeout(NetworkHelper.CONNECT_TIMEOUT);
-		con.setReadTimeout(NetworkHelper.READ_TIMEOUT);
+		con.setConnectTimeout(NetHelper.CONNECT_TIMEOUT);
+		con.setReadTimeout(NetHelper.READ_TIMEOUT);
 		return con;
 	}
 	
-	public static String getStringFromNetIO(URLConnection con){
+	public static String getStringFromNetIO(HttpURLConnection con){
 		InputStream in=null;
 		ByteArrayOutputStream out=null;
 		String result="";
@@ -42,6 +41,7 @@ public class NetworkHelper {
 			try {
 				if(in!=null)in.close();
 				if(out!=null)out.close();
+				con.disconnect();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

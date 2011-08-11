@@ -22,6 +22,8 @@ public class Settings {
 	
 	public static final String PRE_HOUR_PREFER_USAGE="hour_prefer_usage";
 	
+	public static final String PRE_INSTALLED_AT="installed_at";
+	
 	
 	public static long getLongPreferenceValue(Context ctx,String preName,long defaultValue){
 		return getSharedPreferences(ctx).getLong(preName, defaultValue);
