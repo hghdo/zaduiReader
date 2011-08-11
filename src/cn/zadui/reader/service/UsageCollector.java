@@ -76,7 +76,7 @@ public class UsageCollector {
 	        uc.setDoInput(true);
 	        uc.setDoOutput(true);
 	        uc.setRequestMethod("POST");
-	        String data=generatePingStr(ctx);
+	        String data=generateHttpPostData(ctx);
 	        uc.getOutputStream().write(data.getBytes("UTF-8")); 
 	        uc.getOutputStream().close();
 	        if (uc.getResponseCode()==HttpURLConnection.HTTP_CREATED){
@@ -102,7 +102,7 @@ public class UsageCollector {
 	 * @param ctx
 	 * @return
 	 */
-	public static String generatePingStr(Context ctx){
+	public static String generateHttpPostData(Context ctx){
 		StringBuilder sb=new StringBuilder();
 		sb.append("uid="+getDeviceId(ctx));
 		//sb.append("&from="+Settings.getLongPreferenceValue(ctx, Settings.PRE_COLLECTION_STARTED_AT, 0));
