@@ -34,8 +34,8 @@ public class Settings {
 		editor.commit();		
 	}
 	
-	public static String getStringPreferenceValue(Context ctx,String preName){
-		return getSharedPreferences(ctx).getString(preName, "");
+	public static String getStringPreferenceValue(Context ctx,String preName,String defaultValue){
+		return getSharedPreferences(ctx).getString(preName, defaultValue);
 	}
 	
 	public static void updateStringPreferenceValue(Context ctx,String preName,String value){

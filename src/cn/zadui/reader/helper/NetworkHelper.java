@@ -10,18 +10,9 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 
 public class NetworkHelper {
-//	public static final String G_BLOG="blogs";
-//	public static final String G_NEWS="news";
-//	public static final String G_WEB="web";
-	
+
 	public static final int CONNECT_TIMEOUT=20*1000;
 	public static final int READ_TIMEOUT=20*1000;
-	
-//	public static final String XML_FORMAT="xml";
-//	public static final String JSON_FORMAT="json";
-//	public static final String HOST_ROOT="http://172.29.1.67:8000/";
-	//public static final String HOST_ROOT="http://17ttxs.com/";
-	//public static final String HOST_ROOT="http://web4beidanci.appspot.com/";
 	
 		
 	public static URLConnection buildUrlConnection(String url) throws IOException{

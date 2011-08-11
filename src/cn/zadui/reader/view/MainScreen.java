@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
@@ -83,14 +84,10 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 			@Override
 			public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
 				if(view.getId()==R.id.v_read){
-					//ImageView v=(ImageView)view;
-					//view.setBackgroundColor(R.color.black);
 					if (cursor.getInt(columnIndex)==1){
 						view.setVisibility(View.INVISIBLE);
-						//v.setBackgroundResource(R.color.white);
 					}else{
 						view.setVisibility(View.VISIBLE);
-						//v.setBackgroundResource(R.color.pink);
 					}
 					return true;
 				}
@@ -106,6 +103,7 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 		});
         
         setListAdapter(adapter);  
+        //Log.d(TAG,"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAonCreate");
     }
 
 	@Override
