@@ -24,6 +24,8 @@ public class Settings {
 	
 	public static final String PRE_INSTALLED_AT="installed_at";
 	
+	public static final String PRE_HAS_NEW_VERSION="new_version_available";
+	
 	
 	public static long getLongPreferenceValue(Context ctx,String preName,long defaultValue){
 		return getSharedPreferences(ctx).getLong(preName, defaultValue);
@@ -46,6 +48,19 @@ public class Settings {
 		editor.putString(preName, value);
 		editor.commit();		
 	}
+
+	public static boolean getBooleanPreferenceValue(Context ctx,String preName,boolean defaultValue){
+		return getSharedPreferences(ctx).getBoolean(preName, defaultValue);
+	}
+	
+	public static void updateBooleanPreferenceValue(Context ctx,String preName,boolean value){
+		SharedPreferences spSettings=getSharedPreferences(ctx);
+		SharedPreferences.Editor editor = spSettings.edit();
+		editor.putBoolean(preName, value);
+		editor.commit();		
+	}
+	
+	
 	/*
 	public static long getLastOpenedAt(Context ctx){
 		return getSharedPreferences(ctx).getLong(PRE_LAST_OPENED_AT, 0);

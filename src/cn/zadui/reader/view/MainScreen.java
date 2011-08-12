@@ -2,13 +2,16 @@ package cn.zadui.reader.view;
 
 import java.io.File;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ListActivity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
@@ -18,6 +21,7 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 import cn.zadui.reader.R;
 import cn.zadui.reader.helper.ImageHelper;
+import cn.zadui.reader.helper.NetHelper;
 import cn.zadui.reader.helper.StorageHelper;
 import cn.zadui.reader.provider.ReaderArchive.Archives;
 import cn.zadui.reader.service.DownloadService;
@@ -28,6 +32,8 @@ import cn.zadui.reader.service.DownloadService.ServiceState;
 public class MainScreen extends ListActivity implements View.OnClickListener,DownloadService.StateListener{
 	
 	static final String TAG="MainScreen";
+	
+	static final int DIALOG_NEW_VERSION=1;
 	
     /**
      * The columns we are interested in from the database
@@ -104,6 +110,8 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 		});
         setListAdapter(adapter);  
         UsageCollector.openApp(this.getApplicationContext());
+        // If new version available then alert user to install new one.
+        
     }
 
 	@Override
@@ -145,6 +153,27 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 				}
 			}
 		});
+	}
+
+	@Override
+	protected Dialog onCreateDialog(int id) {
+		switch (id){
+		case DIALOG_NEW_VERSION:
+			return new AlertDialog.Builder(this)
+				.setTitle("New version")
+				.setPositiveButton("OK",new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						Uri uri = Uri.parse(NetHelper.webPath("http", "/test.apk")); //这里是APK路径
+						Intent intent = new Intent(Intent.ACTION_VIEW);
+						intent.setData(uri);
+						//intent.setDataAndType(uri,"application/android.com.app");
+						startActivity(intent);						
+					}
+					
+				}).create();
+		}
+		return null;
 	}
 	
     

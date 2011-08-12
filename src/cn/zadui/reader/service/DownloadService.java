@@ -6,6 +6,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
 import java.net.URLConnection;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -24,6 +28,7 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -39,7 +44,7 @@ import cn.zadui.reader.provider.ReaderArchive.Archives;
 /**
  * 
  * @author David
- * TODO 
+ * TODO All HTTP connection should support HTTP 302 redirection
  *
  */
 public class DownloadService extends Service {
@@ -72,14 +77,10 @@ public class DownloadService extends Service {
 	
 	private void handleCommand(Intent intent){
 		if(isRunning) return;
-		ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-		NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-		if (activeNetworkInfo!=null){
-			Log.d(TAG,"network info =>" + activeNetworkInfo.getTypeName());
-		}else{
+		if (NetHelper.currentNetwork(getBaseContext())<0){
 			if(listener!=null) listener.onStateChanged(ServiceState.ERROR,"没有网络链接");
-			return;
-		}		
+			return;			
+		}
 		storageHelper=new StorageHelper(getPackageName());
 		(new DownloadThread()).start();
 	}
@@ -99,7 +100,8 @@ public class DownloadService extends Service {
 	}
 	
 	/**
-	 * TODO Optimize the logic.
+	 * There are two kinds of download action, one is triggered by user click refresh button
+	 * The other is started background. 
 	 * @author david
 	 *
 	 */
@@ -156,7 +158,6 @@ public class DownloadService extends Service {
 				if(listener!=null) listener.onStateChanged(ServiceState.ERROR,ce.getMessage());
 				ce.printStackTrace();
 			}
-			
 			//delete old items
 			Cursor oldItems=DownloadService.this.getContentResolver().query(Archives.OLD_ARCHIVES_URI, PROJECTION, null, null,
 	                Archives.DEFAULT_SORT_ORDER);
@@ -170,9 +171,10 @@ public class DownloadService extends Service {
 				}
 				oldItems.close();
 			}
-			
 			// upload collected data to Server
 			UsageCollector.uploadCollectedUsageDate(DownloadService.this.getApplicationContext());
+			// Check new version
+			checkNewVersion();
 			
 			isRunning=false;
 			if(listener!=null) listener.onStateChanged(ServiceState.FINISHED,"");
@@ -180,6 +182,21 @@ public class DownloadService extends Service {
 			DownloadService.this.stopSelf();
 		}
 	}
+	
+	public void checkNewVersion(){
+		if (Settings.getBooleanPreferenceValue(this, Settings.PRE_HAS_NEW_VERSION, false)) return;
+		String version=NetHelper.getStringFromNetIO(NetHelper.webPath("http", "/version"));
+		if (version==null) return;
+		try {
+			int currentVersion=getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
+			if (currentVersion>Integer.parseInt(version)){
+				Settings.updateBooleanPreferenceValue(this, Settings.PRE_HAS_NEW_VERSION, true);
+			}
+		} catch (NameNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+
 	
 	/**
 	 * Download zip pkg from remote server and unzip.

@@ -4,12 +4,19 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.UUID;
 
 import android.content.Context;
+import android.os.Build;
 import android.telephony.TelephonyManager;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import cn.zadui.reader.helper.FAQCalendar;
+import cn.zadui.reader.helper.NetHelper;
 import cn.zadui.reader.helper.Settings;
 
 /**
@@ -20,6 +27,8 @@ import cn.zadui.reader.helper.Settings;
 public class UsageCollector {
 	
 	public static final String HOUR_PREFER_STR="000000000000000000000000";
+	
+	static final String TAG="UsageCollector";
 
 	public static void openApp(Context ctx){
 		long currentTime=System.currentTimeMillis();
@@ -71,12 +80,13 @@ public class UsageCollector {
 		if (usageStr.length()<5) return;
 		URL url;
 		try {
-			url = new URL("http://172.29.1.67:3389/collector");
+			url = new URL(NetHelper.webPath("http", "/collector")); //"http://172.29.1.67:3389/collector");
 			HttpURLConnection uc = (HttpURLConnection) url.openConnection();
 	        uc.setDoInput(true);
 	        uc.setDoOutput(true);
 	        uc.setRequestMethod("POST");
 	        String data=generateHttpPostData(ctx);
+	        Log.d(TAG,"upload data is => "+data);
 	        uc.getOutputStream().write(data.getBytes("UTF-8")); 
 	        uc.getOutputStream().close();
 	        if (uc.getResponseCode()==HttpURLConnection.HTTP_CREATED){
@@ -105,8 +115,18 @@ public class UsageCollector {
 	public static String generateHttpPostData(Context ctx){
 		StringBuilder sb=new StringBuilder();
 		sb.append("uid="+getDeviceId(ctx));
-		//sb.append("&from="+Settings.getLongPreferenceValue(ctx, Settings.PRE_COLLECTION_STARTED_AT, 0));
-		//sb.append("&dev="+"");
+		DateFormat df=new SimpleDateFormat("yyyyMMdd");
+		Date d=new Date(Settings.getLongPreferenceValue(ctx, Settings.PRE_COLLECTION_STARTED_AT, 0));
+		sb.append("&from="+df.format(d));
+		sb.append("&dev[os][name]="+"android");
+		sb.append("&dev[os][codename]="+Build.VERSION.CODENAME);
+		sb.append("&dev[os][incremental]="+Build.VERSION.INCREMENTAL);
+		sb.append("&dev[os][release]="+Build.VERSION.RELEASE);
+		sb.append("&dev[os][sdk]="+String.valueOf(Build.VERSION.SDK_INT));
+		sb.append("&dev[model]="+Build.MODEL);
+		sb.append("&dev[device]="+Build.DEVICE);
+		//sb.append("&dev[device]="+Build.DEVICE);
+		//DisplayMetrics displaymetrics = new DisplayMetrics();
 		sb.append("&usage="+Settings.getStringPreferenceValue(ctx, Settings.PRE_USAGE, ""));
 		sb.append("&hour="+Settings.getStringPreferenceValue(ctx, Settings.PRE_HOUR_PREFER_USAGE, ""));
 		return sb.toString();

@@ -9,12 +9,32 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 
+import cn.zadui.reader.service.DownloadService.ServiceState;
+
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.util.Log;
+
 public class NetHelper {
 
 	public static final int CONNECT_TIMEOUT=20*1000;
 	public static final int READ_TIMEOUT=20*1000;
 	
-	public static URLConnection buildUrlConnection(String url) throws IOException{
+	public static final String HOST_NAME="172.29.1.67";
+	public static final String PORT="3389";
+	
+	public static String webPath(String protocol,String path){
+		return protocol+"://"+HOST_NAME+":"+PORT+path;
+	}
+	
+	public static int currentNetwork(Context ctx){
+		ConnectivityManager connectivityManager = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();	
+		return activeNetworkInfo==null ? -1 : activeNetworkInfo.getType();
+	}
+	
+	public static HttpURLConnection buildUrlConnection(String url) throws IOException{
 		URL u=new URL(url);
 		HttpURLConnection con=(HttpURLConnection)u.openConnection();
 		con.setConnectTimeout(NetHelper.CONNECT_TIMEOUT);
@@ -22,31 +42,25 @@ public class NetHelper {
 		return con;
 	}
 	
-	public static String getStringFromNetIO(HttpURLConnection con){
-		InputStream in=null;
-		ByteArrayOutputStream out=null;
-		String result="";
+	public static String getStringFromNetIO(String url){
+		HttpURLConnection con=null;
 		try {
-			in=con.getInputStream();
-			out=new ByteArrayOutputStream();
+			con=buildUrlConnection(url);
+			InputStream in=con.getInputStream();
+			ByteArrayOutputStream out=new ByteArrayOutputStream();
 			byte[] buf=new byte[1024*8];
 			int readCount=0;
 			while((readCount=in.read(buf))!=-1){
 				out.write(buf, 0, readCount);
 			}
-			result = out.toString("UTF-8");
+			String result=out.toString("UTF-8");
+			return result;
 		} catch (IOException e) {
 			e.printStackTrace();
-		}finally{
-			try {
-				if(in!=null)in.close();
-				if(out!=null)out.close();
-				con.disconnect();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			return null;
+		} finally{
+			con.disconnect();
 		}
-		return result;
 	}
 	
 
