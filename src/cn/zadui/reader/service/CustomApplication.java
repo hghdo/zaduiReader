@@ -26,7 +26,7 @@ public class CustomApplication extends Application {
 			Settings.updateStringPreferenceValue(this, 
 					Settings.PRE_HOUR_PREFER_USAGE, 
 					UsageCollector.updateHourPreferUsageString(cal,UsageCollector.HOUR_PREFER_STR)
-					);		
+					);
 		}
 	}
 }

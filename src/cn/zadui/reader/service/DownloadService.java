@@ -49,7 +49,7 @@ import cn.zadui.reader.provider.ReaderArchive.Archives;
  */
 public class DownloadService extends Service {
 
-	public static final String FEED_URL="http://172.29.1.67:3389/archives/feed.xml";
+	//public static final String FEED_URL="http://172.29.1.67:3389/archives/feed.xml";
 	//public static final String FEED_URL="http://192.168.1.108:3000/archives/feed.xml";
 	
 	public static StateListener listener;
@@ -108,13 +108,14 @@ public class DownloadService extends Service {
 	private class DownloadThread extends Thread{
 		@Override
 		public void run(){
+			String feed_url=NetHelper.webPath("http", "/archives/feed.xml");
 			isRunning=true;
 	    	if (listener!=null)	listener.onStateChanged(ServiceState.WORKING,"");
 			RSSReader reader = new RSSReader();
 			RSSFeed feed;
 			byte[] buffer=new byte[8*1024];		
 			try {
-				feed = reader.load(FEED_URL);	
+				feed = reader.load(feed_url);	
 				feed.getPubDate();
 				if (feed.getPubDate().toGMTString().equals(Settings.getLastFeedPubDate(DownloadService.this))){
 					isRunning=false;

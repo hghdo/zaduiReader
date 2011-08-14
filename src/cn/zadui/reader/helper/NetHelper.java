@@ -21,7 +21,8 @@ public class NetHelper {
 	public static final int CONNECT_TIMEOUT=20*1000;
 	public static final int READ_TIMEOUT=20*1000;
 	
-	public static final String HOST_NAME="172.29.1.67";
+	//public static final String HOST_NAME="172.29.1.67";
+	public static final String HOST_NAME="192.168.1.108";
 	public static final String PORT="3389";
 	
 	public static String webPath(String protocol,String path){

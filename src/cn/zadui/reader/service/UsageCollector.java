@@ -33,7 +33,7 @@ public class UsageCollector {
 	public static void openApp(Context ctx){
 		long currentTime=System.currentTimeMillis();
 		long lastOpenTS=Settings.getLongPreferenceValue(ctx, Settings.PRE_LAST_OPENED_AT, currentTime);
-		long interval=lastOpenTS-currentTime;
+		long interval=currentTime-lastOpenTS;
 		// Return if the interval to last opened less than 15 minutes.
 		if (interval<15*60*1000) return;
 		String oldUsageStr=Settings.getStringPreferenceValue(ctx, Settings.PRE_USAGE,"");
@@ -80,7 +80,7 @@ public class UsageCollector {
 		if (usageStr.length()<5) return;
 		URL url;
 		try {
-			url = new URL(NetHelper.webPath("http", "/collector")); //"http://172.29.1.67:3389/collector");
+			url = new URL(NetHelper.webPath("http", "/ping")); //"http://172.29.1.67:3389/collector");
 			HttpURLConnection uc = (HttpURLConnection) url.openConnection();
 	        uc.setDoInput(true);
 	        uc.setDoOutput(true);
@@ -115,7 +115,7 @@ public class UsageCollector {
 	public static String generateHttpPostData(Context ctx){
 		StringBuilder sb=new StringBuilder();
 		sb.append("uid="+getDeviceId(ctx));
-		DateFormat df=new SimpleDateFormat("yyyyMMdd");
+		SimpleDateFormat df=new SimpleDateFormat("yyyyMMddTHH:mm");
 		Date d=new Date(Settings.getLongPreferenceValue(ctx, Settings.PRE_COLLECTION_STARTED_AT, 0));
 		sb.append("&from="+df.format(d));
 		sb.append("&dev[os][name]="+"android");
@@ -150,4 +150,6 @@ public class UsageCollector {
 	    //String deviceId = deviceUuid.toString();
 	    return deviceUuid.toString();
 	}
+	
+	private static final SimpleDateFormat RFC822 = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", java.util.Locale.ENGLISH);	
 }

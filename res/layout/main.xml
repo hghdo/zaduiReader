@@ -26,29 +26,35 @@
 				android:layout_height="fill_parent" 
 				android:background="@color/purple"/>
 				
-		<LinearLayout android:orientation="horizontal"
-			android:gravity="center_vertical|center"
-			android:layout_alignParentRight="true"
-    		android:layout_width="40dip"
-    		android:layout_height="fill_parent">
-			<ImageView 
-				android:id="@+id/btn_refresh"
-				android:layout_width="wrap_content" 
-				android:layout_height="fill_parent" 
-				android:src="@android:drawable/ic_menu_rotate"/>
-		    <ProgressBar
-		    	android:id="@+id/pb_download"
-		    	android:layout_gravity="center_vertical"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        style="?android:attr/progressBarStyleSmall"
-		        android:visibility="gone" />				
-    	</LinearLayout>				
+			<LinearLayout android:orientation="horizontal"
+				android:gravity="center_vertical|center"
+				android:layout_alignParentRight="true"
+	    		android:layout_width="40dip"
+	    		android:layout_height="fill_parent">
+				<ImageView 
+					android:id="@+id/btn_refresh"
+				    android:layout_marginTop="3px"
+				    android:layout_marginBottom="3px"
+					android:scaleType="fitCenter"
+					android:layout_width="wrap_content" 
+					android:layout_height="wrap_content" 
+					android:src="@android:drawable/ic_menu_rotate"/>
+			    <ProgressBar
+			    	android:id="@+id/pb_download"
+			    	android:layout_gravity="center_vertical"
+			        android:layout_width="wrap_content"
+			        android:layout_height="wrap_content"
+			        style="?android:attr/progressBarStyleSmall"
+			        android:visibility="gone" />				
+	    	</LinearLayout>				
 			<View 
 				android:layout_width="1px" 
 				android:layout_height="fill_parent" 
 				android:background="@color/purple"/>
 			<ImageView android:id="@+id/btn_settings"
+			    android:layout_marginTop="3px"
+			    android:layout_marginBottom="3px"
+				android:scaleType="fitCenter"
 				android:layout_width="40dip" 
 				android:layout_height="wrap_content" 
 				android:src="@android:drawable/ic_menu_preferences"/>

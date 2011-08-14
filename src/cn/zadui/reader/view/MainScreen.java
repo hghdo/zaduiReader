@@ -12,6 +12,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
@@ -22,6 +23,7 @@ import android.widget.Toast;
 import cn.zadui.reader.R;
 import cn.zadui.reader.helper.ImageHelper;
 import cn.zadui.reader.helper.NetHelper;
+import cn.zadui.reader.helper.Settings;
 import cn.zadui.reader.helper.StorageHelper;
 import cn.zadui.reader.provider.ReaderArchive.Archives;
 import cn.zadui.reader.service.DownloadService;
@@ -53,6 +55,7 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
     
     SimpleCursorAdapter adapter;
     ImageView btnRefresh;
+    ImageView btnSetting;
     ProgressBar downProgress;
     Cursor cursor;
     StorageHelper sh;
@@ -70,6 +73,8 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
         setContentView(R.layout.main);
         btnRefresh=(ImageView)this.findViewById(R.id.btn_refresh);
         btnRefresh.setOnClickListener(this);
+        btnSetting=(ImageView)this.findViewById(R.id.btn_settings);
+        btnSetting.setOnClickListener(this);
         downProgress=(ProgressBar)findViewById(R.id.pb_download);
         // If no data was given in the intent (because we were started
         // as a MAIN activity), then use our default content provider.
@@ -116,10 +121,18 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 
 	@Override
 	public void onClick(View v) {
-		btnRefresh.setVisibility(View.GONE);
-		downProgress.setVisibility(View.VISIBLE);
-		DownloadService.listener=this;
-		startService(new Intent(this,DownloadService.class));
+		switch (v.getId()){
+		case R.id.btn_refresh:
+			btnRefresh.setVisibility(View.GONE);
+			downProgress.setVisibility(View.VISIBLE);
+			DownloadService.listener=this;
+			startService(new Intent(this,DownloadService.class));
+			break;
+			
+		case R.id.btn_settings:
+			Log.d(TAG,Settings.getStringPreferenceValue(this, Settings.PRE_USAGE, ""));
+			Log.d(TAG,Settings.getStringPreferenceValue(this, Settings.PRE_HOUR_PREFER_USAGE, ""));
+		}
 	}
 	
 
