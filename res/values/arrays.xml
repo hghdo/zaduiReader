@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="sync_interval_items">
+        <item>每3小时更新一次</item>
+        <item>每5小时更新一次</item>
+        <item>每天更新一次</item>  
+    </string-array>
+    
+    <!-- Used in app/menu examples -->
+    <string-array name="sync_interval_values">
+        <item>3</item>
+        <item>5</item>
+        <item>24</item>  
+    </string-array>
+    
+</resources>

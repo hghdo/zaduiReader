@@ -20,6 +20,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".view.Archive"/>
+        <activity android:name=".view.AppSettings"/>
 		<service android:name=".service.DownloadService" android:exported="false"></service>  
 		
 		<receiver android:name=".service.NetworkChangedReceiver">

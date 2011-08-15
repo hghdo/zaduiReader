@@ -130,6 +130,10 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 			break;
 			
 		case R.id.btn_settings:
+			Log.d(TAG,"app settings=>"+Settings.getBooleanPreferenceValue(this, "background_sync", false));
+			Intent i=new Intent();
+			i.setClass(getBaseContext(), AppSettings.class);
+			startActivity(i);
 			//Log.d(TAG,Settings.getStringPreferenceValue(this, Settings.PRE_USAGE, ""));
 			//Log.d(TAG,Settings.getStringPreferenceValue(this, Settings.PRE_HOUR_PREFER_USAGE, ""));
 			Log.d(TAG,"Upload data String => "+ UsageCollector.generateHttpPostData(this.getBaseContext()));
