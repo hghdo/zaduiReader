@@ -58,7 +58,6 @@ public class AppSettings extends PreferenceActivity implements OnSharedPreferenc
 			wifi.setSummary(Settings.getBooleanPreferenceValue(this, key, false) ? 
 				getResources().getString(R.string.wifi_only_enabled_summ) : 
 				getResources().getString(R.string.wifi_only_disabled_summ));
-
 		}
 	}
 }
