@@ -4,16 +4,17 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
 
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Build;
 import android.telephony.TelephonyManager;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import cn.zadui.reader.helper.FAQCalendar;
 import cn.zadui.reader.helper.NetHelper;
@@ -115,7 +116,7 @@ public class UsageCollector {
 	public static String generateHttpPostData(Context ctx){
 		StringBuilder sb=new StringBuilder();
 		sb.append("uid="+getDeviceId(ctx));
-		SimpleDateFormat df=new SimpleDateFormat("yyyyMMddTHH:mm");
+		SimpleDateFormat df=new SimpleDateFormat("yyyyMMdd'T'HH:mm");
 		Date d=new Date(Settings.getLongPreferenceValue(ctx, Settings.PRE_COLLECTION_STARTED_AT, 0));
 		sb.append("&from="+df.format(d));
 		sb.append("&dev[os][name]="+"android");
@@ -125,6 +126,16 @@ public class UsageCollector {
 		sb.append("&dev[os][sdk]="+String.valueOf(Build.VERSION.SDK_INT));
 		sb.append("&dev[model]="+Build.MODEL);
 		sb.append("&dev[device]="+Build.DEVICE);
+		sb.append("&app[package_name]="+ctx.getPackageName());
+		boolean testBuild=(ctx.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE)!=0;
+		sb.append("&app[debug]="+String.valueOf(testBuild));
+		PackageInfo pi=null;
+		try {
+			pi = ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0);
+		} catch (NameNotFoundException e) {
+			e.printStackTrace();
+		}
+		sb.append("&app[version_code]="+String.valueOf(pi.versionCode));
 		//sb.append("&dev[device]="+Build.DEVICE);
 		//DisplayMetrics displaymetrics = new DisplayMetrics();
 		sb.append("&usage="+Settings.getStringPreferenceValue(ctx, Settings.PRE_USAGE, ""));
