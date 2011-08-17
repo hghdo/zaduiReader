@@ -18,4 +18,11 @@
     <string name="sync_interval_3h">每3小时更新一次</string>
     <string name="sync_interval_5h">每5小时更新一次</string>
     <string name="sync_interval_24h">每天更新一次</string>
+    
+    <string name="new_version_available">发现新版本</string>
+    <string name="ok">好的</string>
+    <string name="cancel">取消</string>
+    
+    <string name="must_upgrade_title">请使用新版</string>
+    <string name="must_upgrade_text">您所使用的版本已经不再被支持，请使用最新版本！</string>
 </resources>

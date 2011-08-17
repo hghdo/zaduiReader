@@ -30,6 +30,8 @@ public class Settings {
 	
 	public static final String PRE_HAS_NEW_VERSION="new_version_available";
 	
+	public static final String PR_HARD_KILLED="hard_killed";
+	
 	
 	public static long getLongPreferenceValue(Context ctx,String preName,long defaultValue){
 		return getSharedPreferences(ctx).getLong(preName, defaultValue);
@@ -124,6 +126,10 @@ public class Settings {
 		SharedPreferences.Editor editor = spSettings.edit();
 		editor.putString(PRE_LAST_FEED_PUB_DATE, pubDate);
 		editor.commit();
+	}
+	
+	public static boolean hardKilled(Context ctx){
+		return getSharedPreferences(ctx).getBoolean(PR_HARD_KILLED, false);
 	}
 	
     public static SharedPreferences getSharedPreferences(Context ctx) {

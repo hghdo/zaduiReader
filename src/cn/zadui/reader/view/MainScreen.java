@@ -36,6 +36,7 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 	static final String TAG="MainScreen";
 	
 	static final int DIALOG_NEW_VERSION=1;
+	static final int HARD_KILLED=2;
 	
     /**
      * The columns we are interested in from the database
@@ -180,8 +181,8 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 		switch (id){
 		case DIALOG_NEW_VERSION:
 			return new AlertDialog.Builder(this)
-				.setTitle("New version")
-				.setPositiveButton("OK",new DialogInterface.OnClickListener() {
+				.setTitle(R.string.new_version_available)
+				.setPositiveButton(R.string.ok,new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						Uri uri = Uri.parse(NetHelper.webPath("http", "/test.apk")); //这里是APK路径
@@ -191,6 +192,18 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 						startActivity(intent);						
 					}
 					
+				}).create();
+		case HARD_KILLED:
+			return new AlertDialog.Builder(this)
+				.setTitle(R.string.must_upgrade_title)
+				.setMessage(R.string.must_upgrade_text)
+				.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						// TODO Auto-generated method stub
+						
+					}
 				}).create();
 		}
 		return null;
