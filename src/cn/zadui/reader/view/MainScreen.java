@@ -146,6 +146,8 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 		Intent i=new Intent();
 		i.setClass(this, Archive.class);
 		i.putExtra("id", id);
+		cursor.moveToPosition(position);
+		i.putExtra("title",cursor.getString(cursor.getColumnIndex(Archives.TITLE)));
 		//i.putExtra("path", f.getAbsolutePath());
 		//i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 		startActivity(i);
