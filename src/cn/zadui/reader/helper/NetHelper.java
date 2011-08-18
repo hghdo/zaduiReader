@@ -29,6 +29,11 @@ public class NetHelper {
 		return protocol+"://"+HOST_NAME+":"+PORT+path;
 	}
 	
+	/**
+	 * 
+	 * @param ctx
+	 * @return
+	 */
 	public static int currentNetwork(Context ctx){
 		ConnectivityManager connectivityManager = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();	
@@ -63,6 +68,4 @@ public class NetHelper {
 			con.disconnect();
 		}
 	}
-	
-
 }

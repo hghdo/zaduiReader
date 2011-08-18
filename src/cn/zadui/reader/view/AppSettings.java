@@ -5,10 +5,14 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 import cn.zadui.reader.R;
 import cn.zadui.reader.helper.Settings;
 
 public class AppSettings extends PreferenceActivity implements OnSharedPreferenceChangeListener {
+	
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

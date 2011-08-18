@@ -8,7 +8,6 @@ import android.content.ContentValues;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -23,16 +22,19 @@ public class Archive extends Activity implements View.OnClickListener {
 	String loadUrl;
 	WebView web;
 	StorageHelper sh;
-	TextView archiveTitle;
+	TextView title;
 	ImageView btnHome;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);   
+        //requestWindowFeature(Window.FEATURE_NO_TITLE);   
 		setContentView(R.layout.archive);
-		archiveTitle=(TextView)this.findViewById(R.id.tv_archive_title);
-		btnHome=(ImageView)findViewById(R.id.btn_home);
+		View v=findViewById(R.id.right_top_coner);
+		v.setVisibility(View.GONE);
+		title=(TextView)this.findViewById(R.id.tv_title);
+		btnHome=(ImageView)findViewById(R.id.btn_left_top);
+		btnHome.setImageResource(R.drawable.home0);
 		btnHome.setOnClickListener(this);
 		sh=new StorageHelper(getPackageName());
 		web=(WebView)findViewById(R.id.webview);
@@ -47,7 +49,7 @@ public class Archive extends Activity implements View.OnClickListener {
 		File f=new File(sh.getArchiveDir(id),String.valueOf(id)+".html");
 		Log.d(TAG,"Archive path is =>"+f.getAbsolutePath());
 		String url="file://"+f.getAbsolutePath();
-		archiveTitle.setText(getIntent().getExtras().getString("title"));
+		title.setText(getIntent().getExtras().getString("title"));
 		if(loadUrl==null || !loadUrl.equals(url)){
 			loadUrl=url;
 			web.loadUrl(loadUrl);
@@ -68,7 +70,7 @@ public class Archive extends Activity implements View.OnClickListener {
 
 	@Override
 	public void onClick(View v) {
-		if (v.getId()==R.id.btn_home){
+		if (v.getId()==btnHome.getId()){
 			finish();
 		}
 		

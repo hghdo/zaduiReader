@@ -1,46 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:orientation="vertical"
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent">
-    <LinearLayout android:orientation="horizontal"
-    	android:gravity="center_vertical|right"
-    	android:id="@+id/archive_title"
-    	android:background="@color/light_pink"
-    	android:layout_alignParentTop="true" 
-    	android:layout_width="fill_parent"
-    	android:layout_height="40dip">
-		<ImageView android:id="@+id/btn_home"
-			android:padding="5dip"
-			android:layout_width="40dip" 
-			android:layout_height="wrap_content" 
-			android:src="@drawable/home1"/>
-		<View android:layout_width="1px" 
-			android:layout_height="fill_parent" 
-			android:background="@color/purple"/>
-    	<cn.zadui.reader.view.AlwaysMarqueeTextView
-    		android:id="@+id/tv_archive_title"
-    		android:gravity="center_vertical"
-			android:layout_width="wrap_content" 
-			android:layout_height="fill_parent" 
-			android:paddingLeft="8dip"
-			android:textSize="18dip"
-			android:singleLine="true"
-			android:ellipsize="marquee"
-			android:text="AAAAAAAAAAAAA"
-			android:layout_weight="1"/>    	
-   	</LinearLayout>	
-	<View android:id="@+id/archive_title_bottom_border"
-		android:layout_below="@id/archive_title"
-		android:layout_width="fill_parent" 
-		android:layout_height="1px"
-		android:background="@color/purple"/> 
+    <include layout="@layout/window_title" />	
 	<WebView
-	    android:id="@+id/webview"
-        android:layout_below="@id/archive_title_bottom_border"
-        android:layout_alignParentBottom="true"	    
+	    android:id="@+id/webview"   
 	    android:layout_width="fill_parent"
 	    android:layout_height="fill_parent"
 	    android:layout_weight="1" />     	
-	
-</RelativeLayout>
+</LinearLayout>

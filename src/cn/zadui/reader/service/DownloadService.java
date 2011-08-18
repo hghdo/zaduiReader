@@ -6,10 +6,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
 import java.net.URLConnection;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -26,12 +22,10 @@ import org.mcsoxford.rss.RSSReaderException;
 import android.app.Service;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.IBinder;
 import android.util.Log;
@@ -48,9 +42,6 @@ import cn.zadui.reader.provider.ReaderArchive.Archives;
  *
  */
 public class DownloadService extends Service {
-
-	//public static final String FEED_URL="http://172.29.1.67:3389/archives/feed.xml";
-	//public static final String FEED_URL="http://192.168.1.108:3000/archives/feed.xml";
 	
 	public static StateListener listener;
 	
@@ -60,7 +51,6 @@ public class DownloadService extends Service {
 	
 	@Override
 	public IBinder onBind(Intent arg0) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -77,12 +67,13 @@ public class DownloadService extends Service {
 	
 	private void handleCommand(Intent intent){
 		if(isRunning) return;
-		if (NetHelper.currentNetwork(getBaseContext())<0){
+		int netType=NetHelper.currentNetwork(getBaseContext());
+		if (netType<0){
 			if(listener!=null) listener.onStateChanged(ServiceState.ERROR,"没有网络链接");
 			return;			
 		}
 		storageHelper=new StorageHelper(getPackageName());
-		(new DownloadThread()).start();
+		(new DownloadThread(netType)).start();
 	}
 	
 	@Override
@@ -99,6 +90,129 @@ public class DownloadService extends Service {
 		public void onStateChanged(ServiceState state,String info);
 	}
 	
+	public void checkNewVersion(){
+		if (Settings.getBooleanPreferenceValue(this, Settings.PRE_HAS_NEW_VERSION, false)) return;
+		String version=NetHelper.getStringFromNetIO(NetHelper.webPath("http", "/version"));
+		if (version==null) return;
+		try {
+			int currentVersion=getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
+			if (currentVersion>Integer.parseInt(version)){
+				Settings.updateBooleanPreferenceValue(this, Settings.PRE_HAS_NEW_VERSION, true);
+			}
+		} catch (NameNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+
+	
+	/**
+	 * Download zip pkg from remote server and unzip.
+	 * @param item
+	 * @param buffer
+	 * @return true if download and unzip successfully or false if failed
+	 * @throws DownloadException 
+	 */
+	private boolean handleZipPkg(RSSItem item,byte[] buffer) throws DownloadException{
+		if (!StorageHelper.isSdcardWritable()) return false;
+		// Download the pkg.zip and extract it.
+		int len=0;
+		long st=System.currentTimeMillis();
+		Log.d(TAG,"Begin download zip file==>"+String.valueOf(st));
+		String zipFileName=item.getGuid()+".pkg.zip";
+		File targetZip=new File(storageHelper.getArchivesDirInSdcard(),zipFileName);
+		try {
+			URLConnection con=NetHelper.buildUrlConnection(item.getZipPkgUrl());
+			con.connect();
+			FileOutputStream out=new FileOutputStream(targetZip);
+			InputStream in=con.getInputStream();
+			len=0;
+			while((len=in.read(buffer))>0){
+				out.write(buffer,0,len);
+			}
+			out.close();
+			in.close();
+		} catch (IOException e) {
+			Log.e(TAG,"Downloa zip file error");
+			e.printStackTrace();
+			throw new DownloadException(e);
+		}
+		long a=(System.currentTimeMillis()-st)/1000;
+		Log.d(TAG,"Download takes "+String.valueOf(a)+" secondes");
+		Log.d(TAG,"Finished download zip file, then unzip it");
+		
+		// Unzip the downloaded pkg.zip file
+		try {
+			ZipFile zip=new ZipFile(targetZip);
+			Enumeration<?> entries = zip.entries();
+			while(entries.hasMoreElements()){
+				ZipEntry entry=(ZipEntry)entries.nextElement();
+				if(entry.isDirectory()){
+					new File(storageHelper.getArchivesDirInSdcard(),entry.getName()).mkdirs();
+					continue;
+				}
+				BufferedInputStream bis=new BufferedInputStream(zip.getInputStream(entry),8*1024);
+				File img=new File(storageHelper.getArchivesDirInSdcard(),entry.getName());
+				Log.d(TAG,"Unzip file => "+img.getPath());
+				File parent=img.getParentFile();
+				if(parent!=null && !parent.exists()) parent.mkdirs();
+				BufferedOutputStream bos=new BufferedOutputStream(new FileOutputStream(img),8*1024);
+				len=0;
+				while((len=bis.read(buffer))>0) bos.write(buffer, 0, len);
+				bos.flush();
+				bos.close();
+				bis.close();
+				Thread.sleep(30);
+			}
+			zip.close();
+			// delete target zip file
+			targetZip.delete();
+		} catch (ZipException e) {
+			e.printStackTrace();
+			throw new DownloadException(e);
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new DownloadException(e);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			throw new DownloadException(e);
+		}
+		return true;
+	}
+	
+	/**
+	 * TODO Remove hard code 'thumb96' here.
+	 * @param item
+	 * @param buffer
+	 * @return
+	 * @throws DownloadException 
+	 */
+	private String downloadThumbnail(RSSItem item,byte[] buffer) throws DownloadException{
+		File thumb=new File(new File(storageHelper.getArchivesDirInSdcard(),String.valueOf(item.getGuid())),"thumb96");
+		InputStream in=null;
+		FileOutputStream out=null;
+		try {
+			URLConnection con=NetHelper.buildUrlConnection(item.getThumbUrl());
+			con.connect();
+			in=con.getInputStream();
+			out=new FileOutputStream(thumb);
+			int len=0;
+			while((len=in.read(buffer))>0){
+				out.write(buffer,0,len);
+			}
+			out.close();
+			in.close();			
+		} catch (IOException e) {
+			Log.e(TAG,"Download thumb error");
+			e.printStackTrace();
+			throw new DownloadException(e);
+		} 
+		return thumb.getAbsolutePath();
+	}
+	
+	static final String[] PROJECTION={Archives._ID,Archives.GUID};
+    
+	private static final String TAG="DownloadService";
+	
 	/**
 	 * There are two kinds of download action, one is triggered by user click refresh button
 	 * The other is started background. 
@@ -106,11 +220,30 @@ public class DownloadService extends Service {
 	 *
 	 */
 	private class DownloadThread extends Thread{
+		
+		private int networkType;
+		
+		public DownloadThread(int netType){
+			networkType=netType;
+		}
+		
 		@Override
 		public void run(){
-			String feed_url=NetHelper.webPath("http", "/archives/feed.xml");
 			isRunning=true;
 	    	if (listener!=null)	listener.onStateChanged(ServiceState.WORKING,"");
+	    	
+			if (networkType!=ConnectivityManager.TYPE_WIFI && Settings.getBooleanPreferenceValue(DownloadService.this, Settings.PRE_WIFI_ONLY, false)){
+				if(listener!=null) listener.onStateChanged(ServiceState.ERROR,"当前网络不是WIFI, 请使用WIFI连接");
+//				UsageCollector.uploadCollectedUsageDate(DownloadService.this.getApplicationContext());
+//				checkNewVersion();
+				listener=null;
+				isRunning=false;
+				DownloadService.this.stopSelf();
+				return;
+			}
+			
+			// check archives
+			String feed_url=NetHelper.webPath("http", "/archives/feed.xml");
 			RSSReader reader = new RSSReader();
 			RSSFeed feed;
 			byte[] buffer=new byte[8*1024];		
@@ -118,8 +251,9 @@ public class DownloadService extends Service {
 				feed = reader.load(feed_url);	
 				feed.getPubDate();
 				if (feed.getPubDate().toGMTString().equals(Settings.getLastFeedPubDate(DownloadService.this))){
+					Log.d(TAG,"SSSSSSSSSSSSSSSSSame feed xml");
 					isRunning=false;
-					if(listener!=null) listener.onStateChanged(ServiceState.FINISHED,"");
+					if(listener!=null) listener.onStateChanged(ServiceState.FINISHED,"已经是最新数据");
 					listener=null;
 					DownloadService.this.stopSelf();
 					return;
@@ -155,6 +289,9 @@ public class DownloadService extends Service {
 			} catch (RSSReaderException e) {
 				if(listener!=null) listener.onStateChanged(ServiceState.ERROR,e.getMessage());
 				e.printStackTrace();
+			} catch(DownloadException de){
+				if(listener!=null) listener.onStateChanged(ServiceState.ERROR,"下载数据内容失败，请检查网络");
+				de.printStackTrace();
 			} catch(Exception ce){
 				if(listener!=null) listener.onStateChanged(ServiceState.ERROR,ce.getMessage());
 				ce.printStackTrace();
@@ -172,6 +309,7 @@ public class DownloadService extends Service {
 				}
 				oldItems.close();
 			}
+	    	
 			// upload collected data to Server
 			UsageCollector.uploadCollectedUsageDate(DownloadService.this.getApplicationContext());
 			// Check new version
@@ -183,132 +321,5 @@ public class DownloadService extends Service {
 			DownloadService.this.stopSelf();
 		}
 	}
-	
-	public void checkNewVersion(){
-		if (Settings.getBooleanPreferenceValue(this, Settings.PRE_HAS_NEW_VERSION, false)) return;
-		String version=NetHelper.getStringFromNetIO(NetHelper.webPath("http", "/version"));
-		if (version==null) return;
-		try {
-			int currentVersion=getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
-			if (currentVersion>Integer.parseInt(version)){
-				Settings.updateBooleanPreferenceValue(this, Settings.PRE_HAS_NEW_VERSION, true);
-			}
-		} catch (NameNotFoundException e) {
-			e.printStackTrace();
-		}
-	}
-
-	
-	/**
-	 * Download zip pkg from remote server and unzip.
-	 * @param item
-	 * @param buffer
-	 * @return true if download and unzip successfully or false if failed
-	 * @throws InterruptedException 
-	 */
-	private boolean handleZipPkg(RSSItem item,byte[] buffer){
-		if (!StorageHelper.isSdcardWritable()) return false;
-		// Download the pkg.zip and extract it.
-		int len=0;
-		long st=System.currentTimeMillis();
-		Log.d(TAG,"Begin download zip file==>"+String.valueOf(st));
-		String zipFileName=item.getGuid()+".pkg.zip";
-		File targetZip=new File(storageHelper.getArchivesDirInSdcard(),zipFileName);
-		try {
-			URLConnection con=NetHelper.buildUrlConnection(item.getZipPkgUrl());
-			con.connect();
-			FileOutputStream out=new FileOutputStream(targetZip);
-			InputStream in=con.getInputStream();
-			len=0;
-			while((len=in.read(buffer))>0){
-				out.write(buffer,0,len);
-			}
-			out.close();
-			in.close();
-		} catch (IOException e) {
-			Log.e(TAG,"Downloa zip file error");
-			e.printStackTrace();
-			return false;
-		}
-		long a=(System.currentTimeMillis()-st)/1000;
-		Log.d(TAG,"Download takes "+String.valueOf(a)+" secondes");
-		Log.d(TAG,"Finished download zip file, then unzip it");
-		
-		// Unzip the downloaded pkg.zip file
-		try {
-			ZipFile zip=new ZipFile(targetZip);
-			Enumeration<?> entries = zip.entries();
-			while(entries.hasMoreElements()){
-				ZipEntry entry=(ZipEntry)entries.nextElement();
-				if(entry.isDirectory()){
-					new File(storageHelper.getArchivesDirInSdcard(),entry.getName()).mkdirs();
-					continue;
-				}
-				BufferedInputStream bis=new BufferedInputStream(zip.getInputStream(entry),8*1024);
-				File img=new File(storageHelper.getArchivesDirInSdcard(),entry.getName());
-				Log.d(TAG,"Unzip file => "+img.getPath());
-				File parent=img.getParentFile();
-				if(parent!=null && !parent.exists()) parent.mkdirs();
-				BufferedOutputStream bos=new BufferedOutputStream(new FileOutputStream(img),8*1024);
-				len=0;
-				while((len=bis.read(buffer))>0) bos.write(buffer, 0, len);
-				bos.flush();
-				bos.close();
-				bis.close();
-				Thread.sleep(30);
-			}
-			zip.close();
-			// delete target zip file
-			targetZip.delete();
-		} catch (ZipException e) {
-			e.printStackTrace();
-			return false;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return false;
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-			return false;
-		}
-		return true;
-	}
-	
-	/**
-	 * TODO Remove hard code 'thumb96' here.
-	 * @param item
-	 * @param buffer
-	 * @return
-	 */
-	private String downloadThumbnail(RSSItem item,byte[] buffer){
-		File thumb=new File(new File(storageHelper.getArchivesDirInSdcard(),String.valueOf(item.getGuid())),"thumb96");
-		InputStream in=null;
-		FileOutputStream out=null;
-		try {
-			URLConnection con=NetHelper.buildUrlConnection(item.getThumbUrl());
-			con.connect();
-			in=con.getInputStream();
-			out=new FileOutputStream(thumb);
-			int len=0;
-			while((len=in.read(buffer))>0){
-				out.write(buffer,0,len);
-			}
-		} catch (IOException e) {
-			Log.e(TAG,"Download thumb error");
-			e.printStackTrace();
-			return null;
-		} finally {
-			try {
-				out.close();
-				in.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		return thumb.getAbsolutePath();
-	}
-	
-	static final String[] PROJECTION={Archives._ID,Archives.GUID};
-    
-	private static final String TAG="DownloadService";
 
 }

@@ -1,6 +1,8 @@
 package cn.zadui.reader.view;
 
 import java.io.File;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -14,11 +16,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SimpleCursorAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 import cn.zadui.reader.R;
 import cn.zadui.reader.helper.ImageHelper;
@@ -57,26 +59,22 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
     SimpleCursorAdapter adapter;
     ImageView btnRefresh;
     ImageView btnSetting;
+    TextView title;
     ProgressBar downProgress;
     Cursor cursor;
     StorageHelper sh;
-	//ImageView thumb;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);   
-        //requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-        //setProgressBarIndeterminateVisibility(DownloadService.isRunning);
-        
-		//downloadArchiveRSS();
-        
         setContentView(R.layout.main);
-        btnRefresh=(ImageView)this.findViewById(R.id.btn_refresh);
+        title=(TextView)findViewById(R.id.tv_title);
+        btnRefresh=(ImageView)this.findViewById(R.id.btn_left_top);
         btnRefresh.setOnClickListener(this);
-        btnSetting=(ImageView)this.findViewById(R.id.btn_settings);
+        btnSetting=(ImageView)this.findViewById(R.id.btn_right_top);
         btnSetting.setOnClickListener(this);
         downProgress=(ProgressBar)findViewById(R.id.pb_download);
+        
         // If no data was given in the intent (because we were started
         // as a MAIN activity), then use our default content provider.
         Intent intent = getIntent();
@@ -115,22 +113,40 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 			}
 		});
         setListAdapter(adapter);  
-        UsageCollector.openApp(this.getApplicationContext());
-        // If new version available then alert user to install new one.
-        
-    }
-
-	@Override
-	public void onClick(View v) {
-		switch (v.getId()){
-		case R.id.btn_refresh:
+           
+		long ms=Settings.getLongPreferenceValue(this, Settings.PRE_INSTALLED_AT, 0);
+		if (ms==0){
+			// First time open initial all collection data
+			long now=System.currentTimeMillis();
+			Settings.updateLongPreferenceValue(this, Settings.PRE_INSTALLED_AT, now);
+			Settings.updateLongPreferenceValue(this, Settings.PRE_COLLECTION_STARTED_AT, now);
+			Settings.updateLongPreferenceValue(this, Settings.PRE_LAST_OPENED_AT, now);
+			Settings.updateStringPreferenceValue(this, Settings.PRE_USAGE, "1");
+			Calendar cal=new GregorianCalendar();
+			cal.setTimeInMillis(now);			
+			Settings.updateStringPreferenceValue(this, 
+					Settings.PRE_HOUR_PREFER_USAGE, 
+					UsageCollector.updateHourPreferUsageString(cal,UsageCollector.HOUR_PREFER_STR)
+					);
 			btnRefresh.setVisibility(View.GONE);
 			downProgress.setVisibility(View.VISIBLE);
 			DownloadService.listener=this;
 			startService(new Intent(this,DownloadService.class));
-			break;
 			
-		case R.id.btn_settings:
+		}else{
+			UsageCollector.openApp(this.getApplicationContext());
+		}        
+    }
+
+	@Override
+	public void onClick(View v) {
+		if (v.getId()==btnRefresh.getId()){
+			btnRefresh.setVisibility(View.GONE);
+			downProgress.setVisibility(View.VISIBLE);
+			DownloadService.listener=this;
+			startService(new Intent(this,DownloadService.class));
+			
+		}else if(v.getId()==btnSetting.getId()){
 			Log.d(TAG,"app settings=>"+Settings.getBooleanPreferenceValue(this, "background_sync", false));
 			Intent i=new Intent();
 			i.setClass(getBaseContext(), AppSettings.class);
@@ -138,10 +154,10 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 			//Log.d(TAG,Settings.getStringPreferenceValue(this, Settings.PRE_USAGE, ""));
 			//Log.d(TAG,Settings.getStringPreferenceValue(this, Settings.PRE_HOUR_PREFER_USAGE, ""));
 			Log.d(TAG,"Upload data String => "+ UsageCollector.generateHttpPostData(this.getBaseContext()));
+			
 		}
 	}
 	
-
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		Intent i=new Intent();

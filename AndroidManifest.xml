@@ -3,11 +3,17 @@
       package="cn.zadui.reader"
       android:versionCode="55"
       android:versionName="1.0">
-    <uses-sdk android:minSdkVersion="7" />
+    <uses-sdk android:minSdkVersion="5" />
 
+	<!--  
     <application android:name=".service.CustomApplication" 
-    	android:icon="@drawable/lipstick" android:label="@string/app_name" android:theme="@android:style/Theme.Light">
-    
+    	android:icon="@drawable/lipstick" android:label="@string/app_name" 
+    	android:theme="@style/CustomTheme">
+    -->
+    <application android:name=".service.CustomApplication" 
+    	android:icon="@drawable/lipstick" android:label="@string/app_name" 
+    	android:theme="@android:style/Theme.Light.NoTitleBar">
+    	
         <provider android:name=".provider.ReaderArchiveProvider"
             android:authorities="cn.zadui.provider.ReaderArchive"
         />

@@ -37,7 +37,7 @@ public class UsageCollector {
 		long interval=currentTime-lastOpenTS;
 		// Return if the interval to last opened less than 15 minutes.
 		//if (interval<15*60*1000) return;
-		String oldUsageStr=Settings.getStringPreferenceValue(ctx, Settings.PRE_USAGE,"");
+		String oldUsageStr=Settings.getStringPreferenceValue(ctx, Settings.PRE_USAGE,"0");
 		FAQCalendar lastOpened=new FAQCalendar(lastOpenTS);
 		FAQCalendar now=new FAQCalendar(currentTime);
 		if (now.getUnixDay()>lastOpened.getUnixDay()){
