@@ -105,7 +105,7 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 				if(columnIndex==cursor.getColumnIndex(Archives.THUMB_URL)){
 					File imgDir=new File(sh.getArchivesDirInSdcard().getAbsolutePath(),cursor.getString(cursor.getColumnIndex(Archives.GUID)));
 					ImageView v=(ImageView)view;
-					Bitmap img=BitmapFactory.decodeFile(imgDir+"/thumb96");
+					Bitmap img=BitmapFactory.decodeFile(imgDir+"/thumb96.jpg");
 					v.setImageBitmap(ImageHelper.getRoundedCornerBitmap(img,5));
 					return true;
 				}
