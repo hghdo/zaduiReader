@@ -19,12 +19,21 @@
         <item>标准质量图片</item>
         <item>低质量图片</item>  
     </string-array>
-    
-    <!-- Used in app/menu examples -->
     <string-array name="image_quality_values">
         <item>h</item>
         <item>m</item>
         <item>l</item>  
+    </string-array>
+    
+    <string-array name="max_archives">
+        <item>8篇文章</item>
+        <item>12篇文章</item>
+        <item>18篇文章</item>  
+    </string-array>
+    <string-array name="max_archives_values">
+        <item>8</item>
+        <item>12</item>
+        <item>18</item>  
     </string-array>
     
 </resources>
