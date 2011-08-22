@@ -38,6 +38,14 @@
             android:defaultValue="false"
             android:title="@string/wifi_only_title" />
             
+    <ListPreference
+            android:key="image_quality"
+            android:defaultValue="m"
+            android:title="@string/image_quality"
+            android:entries="@array/image_quality_items"
+            android:entryValues="@array/image_quality_values"
+            android:dialogTitle="@string/image_quality" />
+            
     <!--  
     <EditTextPreference
             android:key="default_edittext"

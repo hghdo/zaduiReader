@@ -34,7 +34,7 @@ public class Archive extends Activity implements View.OnClickListener {
 		v.setVisibility(View.GONE);
 		title=(TextView)this.findViewById(R.id.tv_title);
 		btnHome=(ImageView)findViewById(R.id.btn_left_top);
-		btnHome.setImageResource(R.drawable.home0);
+		btnHome.setImageResource(R.drawable.go_home);
 		btnHome.setOnClickListener(this);
 		sh=new StorageHelper(getPackageName());
 		web=(WebView)findViewById(R.id.webview);

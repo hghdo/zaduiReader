@@ -118,9 +118,12 @@ public class DownloadService extends Service {
 		int len=0;
 		long st=System.currentTimeMillis();
 		Log.d(TAG,"Begin download zip file==>"+String.valueOf(st));
-		String zipFileName=item.getGuid()+".pkg.zip";
+		String zipFileName=item.getGuid()+"_"+Settings.getStringPreferenceValue(this, Settings.PR_IMAGE_QUALITY, "m")+".zip";
 		File targetZip=new File(storageHelper.getArchivesDirInSdcard(),zipFileName);
 		try {
+			//Url
+			String pkgUrl=item.getZipPkgUrl();
+			pkgUrl=pkgUrl.substring(0,pkgUrl.lastIndexOf('/')+1)+zipFileName;
 			URLConnection con=NetHelper.buildUrlConnection(item.getZipPkgUrl());
 			con.connect();
 			FileOutputStream out=new FileOutputStream(targetZip);

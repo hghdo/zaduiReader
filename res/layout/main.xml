@@ -8,6 +8,8 @@
         android:id="@android:id/list"
         android:layout_width="fill_parent" 
         android:layout_height="wrap_content"
+        android:divider="@color/light_pink"
+        android:dividerHeight="1px"
         android:layout_weight="1" />
 </LinearLayout>
 

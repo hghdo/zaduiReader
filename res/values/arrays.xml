@@ -14,4 +14,17 @@
         <item>24</item>  
     </string-array>
     
+    <string-array name="image_quality_items">
+        <item>高质量图片</item>
+        <item>标准质量图片</item>
+        <item>低质量图片</item>  
+    </string-array>
+    
+    <!-- Used in app/menu examples -->
+    <string-array name="image_quality_values">
+        <item>h</item>
+        <item>m</item>
+        <item>l</item>  
+    </string-array>
+    
 </resources>

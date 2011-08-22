@@ -11,7 +11,7 @@
     	android:theme="@style/CustomTheme">
     -->
     <application android:name=".service.CustomApplication" 
-    	android:icon="@drawable/lipstick" android:label="@string/app_name" 
+    	android:icon="@drawable/vintage_girl" android:label="@string/app_name" 
     	android:theme="@android:style/Theme.Light.NoTitleBar">
     	
         <provider android:name=".provider.ReaderArchiveProvider"

@@ -32,6 +32,8 @@ public class Settings {
 	
 	public static final String PR_HARD_KILLED="hard_killed";
 	
+	public static final String PR_IMAGE_QUALITY="image_quality";
+	
 	
 	public static long getLongPreferenceValue(Context ctx,String preName,long defaultValue){
 		return getSharedPreferences(ctx).getLong(preName, defaultValue);

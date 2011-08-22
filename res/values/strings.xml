@@ -25,4 +25,6 @@
     
     <string name="must_upgrade_title">请使用新版</string>
     <string name="must_upgrade_text">您所使用的版本已经不再被支持，请使用最新版本！</string>
+    
+    <string name="image_quality">图片质量</string>
 </resources>
