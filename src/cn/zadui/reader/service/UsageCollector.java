@@ -77,7 +77,7 @@ public class UsageCollector {
 	 * @param ctx
 	 */
 	public static void uploadCollectedUsageDate(Context ctx){
-		String usageStr=Settings.getStringPreferenceValue(ctx, Settings.PRE_USAGE,"");
+		String usageStr=Settings.getStringPreferenceValue(ctx, Settings.PRE_USAGE,"0");
 		if (usageStr.length()<5) return;
 		URL url;
 		try {
@@ -138,8 +138,8 @@ public class UsageCollector {
 		sb.append("&app[version_code]="+String.valueOf(pi.versionCode));
 		//sb.append("&dev[device]="+Build.DEVICE);
 		//DisplayMetrics displaymetrics = new DisplayMetrics();
-		sb.append("&usage="+Settings.getStringPreferenceValue(ctx, Settings.PRE_USAGE, ""));
-		sb.append("&hour="+Settings.getStringPreferenceValue(ctx, Settings.PRE_HOUR_PREFER_USAGE, ""));
+		sb.append("&usage="+Settings.getStringPreferenceValue(ctx, Settings.PRE_USAGE, "0"));
+		sb.append("&hour="+Settings.getStringPreferenceValue(ctx, Settings.PRE_HOUR_PREFER_USAGE, HOUR_PREFER_STR));
 		return sb.toString();
 	}
 	

@@ -45,20 +45,15 @@
             android:entries="@array/image_quality_items"
             android:entryValues="@array/image_quality_values"
             android:dialogTitle="@string/image_quality" />
+    <ListPreference
+            android:key="max_archives"
+            android:defaultValue="8"
+            android:title="@string/max_archives"
+            android:entries="@array/max_archives"
+            android:entryValues="@array/max_archives_values"
+            android:dialogTitle="@string/max_archives" />
 
     <!--            
-    <ListPreference
-            android:key="image_quality"
-            android:defaultValue="m"
-            android:title="@string/image_quality"
-            android:entries="@array/image_quality_items"
-            android:entryValues="@array/image_quality_values"
-            android:dialogTitle="@string/image_quality" />
-            
-
-
-
-  
     <EditTextPreference
             android:key="default_edittext"
             android:defaultValue="@string/default_value_edittext_preference"

@@ -16,7 +16,7 @@ public class Settings {
 	
 	public static final String PRE_LAST_FEED_PUB_DATE="last_feed_pub_date";
 	
-	public static final String PRE_MAX_ARCHIVE_LIST_SIZE="max_archive_list_size";
+	public static final String PRE_MAX_ARCHIVES="max_archives";
 	
 	public static final String PRE_LAST_OPENED_AT="last_open_at";
 	
@@ -32,7 +32,12 @@ public class Settings {
 	
 	public static final String PR_HARD_KILLED="hard_killed";
 	
-	public static final String PR_IMAGE_QUALITY="image_quality";
+	public static final String PRE_IMAGE_QUALITY="image_quality";
+	
+	public static final String DEF_SYNC_INTERVAL="5";
+	public static final boolean DEF_WIFI_ONLY=true;
+	public static final String DEF_IMAGE_QUALITY="m";
+	public static final String DEF_MAX_ARCHIVES="8";
 	
 	
 	public static long getLongPreferenceValue(Context ctx,String preName,long defaultValue){
@@ -94,13 +99,14 @@ public class Settings {
 	*/
 	
 	public static int getMaxArchiveListSize(Context ctx){
-		return getSharedPreferences(ctx).getInt(PRE_MAX_ARCHIVE_LIST_SIZE, 5);
+		String str=getSharedPreferences(ctx).getString(PRE_MAX_ARCHIVES, DEF_MAX_ARCHIVES);
+		return Integer.valueOf(str);
 	}
 	
 	public static void updateMaxArchiveListSize(Context ctx,int size){
 		SharedPreferences spSettings=getSharedPreferences(ctx);//.getSharedPreferences(PrefStore.PREFS_NAME, 0);
 		SharedPreferences.Editor editor = spSettings.edit();
-		editor.putInt(PRE_MAX_ARCHIVE_LIST_SIZE, size);
+		editor.putInt(PRE_MAX_ARCHIVES, size);
 		editor.commit();
 	}
 //	

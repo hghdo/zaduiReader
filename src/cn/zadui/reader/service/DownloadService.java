@@ -118,7 +118,7 @@ public class DownloadService extends Service {
 		int len=0;
 		long st=System.currentTimeMillis();
 		Log.d(TAG,"Begin download zip file==>"+String.valueOf(st));
-		String zipFileName=item.getGuid()+"_"+Settings.getStringPreferenceValue(this, Settings.PR_IMAGE_QUALITY, "m")+".zip";
+		String zipFileName=item.getGuid()+"_"+Settings.getStringPreferenceValue(this, Settings.PRE_IMAGE_QUALITY, Settings.DEF_IMAGE_QUALITY)+".zip";
 		File targetZip=new File(storageHelper.getArchivesDirInSdcard(),zipFileName);
 		try {
 			//Url
