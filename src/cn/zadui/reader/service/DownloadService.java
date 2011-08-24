@@ -7,7 +7,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
+import java.util.Calendar;
 import java.util.Enumeration;
+import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.zip.ZipEntry;
@@ -19,9 +21,12 @@ import org.mcsoxford.rss.RSSItem;
 import org.mcsoxford.rss.RSSReader;
 import org.mcsoxford.rss.RSSReaderException;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
@@ -102,6 +107,24 @@ public class DownloadService extends Service {
 		} catch (NameNotFoundException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public static void updateSyncJob(Context ctx){
+		// Initialize background sync task
+		long now=System.currentTimeMillis();
+		Calendar cal=new GregorianCalendar();
+		cal.setTimeInMillis(now);		
+		Intent sync=new Intent(ctx,DownloadService.class);
+		PendingIntent.getService(ctx, 0, sync, PendingIntent.FLAG_UPDATE_CURRENT);
+		AlarmManager alarm=(AlarmManager)ctx.getSystemService(ALARM_SERVICE);
+		int interval=Integer.valueOf(Settings.getStringPreferenceValue(ctx, Settings.PRE_SYNC_INTERVAL, Settings.DEF_SYNC_INTERVAL));
+		cal.add(Calendar.HOUR, interval);
+		alarm.setRepeating(
+				AlarmManager.RTC, 
+				cal.getTimeInMillis(), 
+				interval*60*60*1000, 
+				PendingIntent.getService(ctx, 0, sync, PendingIntent.FLAG_UPDATE_CURRENT)
+				);
 	}
 
 	

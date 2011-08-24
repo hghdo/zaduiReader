@@ -4,9 +4,11 @@ import java.io.File;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
+import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
+import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -131,8 +133,18 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 			btnRefresh.setVisibility(View.GONE);
 			downProgress.setVisibility(View.VISIBLE);
 			DownloadService.listener=this;
-			startService(new Intent(this,DownloadService.class));
-			
+			Intent sync=new Intent(getApplicationContext(),DownloadService.class);
+			startService(sync);
+			// Initialize background sync task
+//			PendingIntent.getService(getApplication(), 0, sync, PendingIntent.FLAG_UPDATE_CURRENT);
+//			AlarmManager alarm=(AlarmManager)getSystemService(ALARM_SERVICE);
+//			cal.add(Calendar.HOUR, 5);
+//			alarm.setRepeating(
+//					AlarmManager.RTC_WAKEUP, 
+//					cal.getTimeInMillis(), 
+//					5*60*60*1000, 
+//					PendingIntent.getService(getApplication(), 0, sync, PendingIntent.FLAG_UPDATE_CURRENT)
+//			);
 		}else{
 			UsageCollector.openApp(this.getApplicationContext());
 		}        

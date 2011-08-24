@@ -23,6 +23,8 @@ public class NetworkChangedReceiver extends BroadcastReceiver {
 				Log.d(TAG,"wifi connected!");
 				context.startService(new Intent(context,DownloadService.class));
 			}
+		}else if(false){
+			
 		}
 	}
 
