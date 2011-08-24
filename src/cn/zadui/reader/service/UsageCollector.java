@@ -78,7 +78,7 @@ public class UsageCollector {
 	 */
 	public static void uploadCollectedUsageDate(Context ctx){
 		String usageStr=Settings.getStringPreferenceValue(ctx, Settings.PRE_USAGE,"0");
-		if (usageStr.length()<5) return;
+		if (usageStr.length()<3) return;
 		URL url;
 		try {
 			url = new URL(NetHelper.webPath("http", "/ping")); //"http://172.29.1.67:3389/collector");
