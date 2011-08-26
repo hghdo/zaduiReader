@@ -111,6 +111,7 @@ public class DownloadService extends Service {
 	
 	public static void updateSyncJob(Context ctx){
 		// Initialize background sync task
+		if (!Settings.getBooleanPreferenceValue(ctx, Settings.PRE_BACKGROUND_SYNC, true)) return;
 		long now=System.currentTimeMillis();
 		Calendar cal=new GregorianCalendar();
 		cal.setTimeInMillis(now);		
@@ -335,6 +336,8 @@ public class DownloadService extends Service {
 				}
 				oldItems.close();
 			}
+			// update next sync time
+			DownloadService.updateSyncJob(DownloadService.this.getBaseContext());
 	    	
 			// upload collected data to Server
 			UsageCollector.uploadCollectedUsageDate(DownloadService.this.getApplicationContext());
