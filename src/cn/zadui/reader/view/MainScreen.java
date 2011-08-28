@@ -14,6 +14,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -98,9 +99,11 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 			public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
 				if(view.getId()==R.id.v_read){
 					if (cursor.getInt(columnIndex)==1){
-						view.setVisibility(View.INVISIBLE);
+						view.setBackgroundColor(Color.WHITE);
+						//view.setVisibility(View.INVISIBLE);
 					}else{
-						view.setVisibility(View.VISIBLE);
+						view.setBackgroundColor(getResources().getColor(R.color.thin_pink));
+						//view.setVisibility(View.VISIBLE);
 					}
 					return true;
 				}

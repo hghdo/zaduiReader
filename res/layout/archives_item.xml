@@ -6,20 +6,30 @@
   android:orientation="horizontal"
   android:gravity="center_vertical"
   android:paddingTop="5dip"
-  android:paddingBottom="5dip"> 
+  android:paddingBottom="5dip"
+  android:id="@+id/v_read">
+<!--   
   	<ImageView 
   		android:id="@+id/v_read"
   		android:layout_width="6dip"
   	    android:layout_height="fill_parent"
+  	    android:visibility="gone"
   	    android:background="@color/pink">
     </ImageView>
+-->    
+	<ImageView android:id="@+id/thumb" 
+		android:layout_width="60dip" 
+		android:layout_height="60dip"
+		android:layout_marginLeft="10dip"
+		android:scaleType="centerInside"/>
+    
 	<LinearLayout
 	  android:layout_width="fill_parent"
 	  android:layout_height="wrap_content"
       android:layout_weight="1"	  
 	  android:orientation="vertical"
-	  android:paddingLeft="5dip"
-	  android:paddingRight="8dip">
+	  android:paddingLeft="10dip"
+	  android:paddingRight="10dip">
 	    <TextView
 	        android:id="@+id/tv_title"
 	        android:maxLines="2"
@@ -38,9 +48,4 @@
 	        android:layout_height="wrap_content"
 	        android:text="description"/>
 	</LinearLayout>
-	<ImageView android:id="@+id/thumb" 
-		android:layout_width="60dip" 
-		android:layout_height="60dip"
-		android:layout_marginRight="10dip"
-		android:scaleType="centerInside"/>
 </LinearLayout>

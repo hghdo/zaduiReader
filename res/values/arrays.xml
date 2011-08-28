@@ -7,11 +7,11 @@
         <item>每天更新一次</item>  
     </string-array>
     
-    <!-- Used in app/menu examples -->
+    <!-- here is minutes -->
     <string-array name="sync_interval_values">
-        <item>3</item>
-        <item>5</item>
-        <item>24</item>  
+        <item>180</item>
+        <item>300</item>
+        <item>1440</item>  
     </string-array>
     
     <string-array name="image_quality_items">

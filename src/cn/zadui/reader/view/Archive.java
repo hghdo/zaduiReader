@@ -32,7 +32,7 @@ public class Archive extends Activity implements View.OnClickListener {
 		setContentView(R.layout.archive);
 		View v=findViewById(R.id.right_top_coner);
 		v.setVisibility(View.GONE);
-		title=(TextView)this.findViewById(R.id.tv_title);
+		title=(TextView)this.findViewById(R.id.tv_archive_title);
 		btnHome=(ImageView)findViewById(R.id.btn_left_top);
 		btnHome.setImageResource(R.drawable.img_home);
 		btnHome.setOnClickListener(this);

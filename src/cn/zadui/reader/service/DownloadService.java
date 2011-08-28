@@ -118,12 +118,14 @@ public class DownloadService extends Service {
 		Intent sync=new Intent(ctx,DownloadService.class);
 		PendingIntent.getService(ctx, 0, sync, PendingIntent.FLAG_UPDATE_CURRENT);
 		AlarmManager alarm=(AlarmManager)ctx.getSystemService(ALARM_SERVICE);
+		// the unit is minuts
 		int interval=Integer.valueOf(Settings.getStringPreferenceValue(ctx, Settings.PRE_SYNC_INTERVAL, Settings.DEF_SYNC_INTERVAL));
-		cal.add(Calendar.HOUR, interval);
+		//interval=2;
+		cal.add(Calendar.MINUTE, interval);
 		alarm.setRepeating(
 				AlarmManager.RTC, 
 				cal.getTimeInMillis(), 
-				interval*60*60*1000, 
+				interval*60*1000, 
 				PendingIntent.getService(ctx, 0, sync, PendingIntent.FLAG_UPDATE_CURRENT)
 				);
 	}
@@ -256,6 +258,7 @@ public class DownloadService extends Service {
 		
 		@Override
 		public void run(){
+			Log.i(TAG,"Beggin download process");
 			isRunning=true;
 	    	if (listener!=null)	listener.onStateChanged(ServiceState.WORKING,"");
 	    	
@@ -338,6 +341,7 @@ public class DownloadService extends Service {
 			}
 			// update next sync time
 			DownloadService.updateSyncJob(DownloadService.this.getBaseContext());
+			Log.i(TAG, "After update sync job");
 	    	
 			// upload collected data to Server
 			UsageCollector.uploadCollectedUsageDate(DownloadService.this.getApplicationContext());

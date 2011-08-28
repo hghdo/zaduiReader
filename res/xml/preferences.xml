@@ -26,7 +26,7 @@
             
     <ListPreference
             android:key="sync_interval"
-            android:defaultValue="5"
+            android:defaultValue="300"
             android:title="@string/sync_interval"
             android:entries="@array/sync_interval_items"
             android:entryValues="@array/sync_interval_values"
