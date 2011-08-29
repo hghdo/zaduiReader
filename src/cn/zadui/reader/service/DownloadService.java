@@ -96,6 +96,7 @@ public class DownloadService extends Service {
 	}
 	
 	public void checkNewVersion(){
+		if (!Settings.installedFromGoogleMarket(this.getBaseContext())) return;
 		if (Settings.getBooleanPreferenceValue(this, Settings.PRE_HAS_NEW_VERSION, false)) return;
 		String version=NetHelper.getStringFromNetIO(NetHelper.webPath("http", "/version"));
 		if (version==null) return;
@@ -108,28 +109,6 @@ public class DownloadService extends Service {
 			e.printStackTrace();
 		}
 	}
-	
-	public static void updateSyncJob(Context ctx){
-		// Initialize background sync task
-		if (!Settings.getBooleanPreferenceValue(ctx, Settings.PRE_BACKGROUND_SYNC, true)) return;
-		long now=System.currentTimeMillis();
-		Calendar cal=new GregorianCalendar();
-		cal.setTimeInMillis(now);		
-		Intent sync=new Intent(ctx,DownloadService.class);
-		PendingIntent.getService(ctx, 0, sync, PendingIntent.FLAG_UPDATE_CURRENT);
-		AlarmManager alarm=(AlarmManager)ctx.getSystemService(ALARM_SERVICE);
-		// the unit is minuts
-		int interval=Integer.valueOf(Settings.getStringPreferenceValue(ctx, Settings.PRE_SYNC_INTERVAL, Settings.DEF_SYNC_INTERVAL));
-		//interval=2;
-		cal.add(Calendar.MINUTE, interval);
-		alarm.setRepeating(
-				AlarmManager.RTC, 
-				cal.getTimeInMillis(), 
-				interval*60*1000, 
-				PendingIntent.getService(ctx, 0, sync, PendingIntent.FLAG_UPDATE_CURRENT)
-				);
-	}
-
 	
 	/**
 	 * Download zip pkg from remote server and unzip.
@@ -340,7 +319,7 @@ public class DownloadService extends Service {
 				oldItems.close();
 			}
 			// update next sync time
-			DownloadService.updateSyncJob(DownloadService.this.getBaseContext());
+			Settings.updateSyncJob(DownloadService.this.getBaseContext());
 			Log.i(TAG, "After update sync job");
 	    	
 			// upload collected data to Server

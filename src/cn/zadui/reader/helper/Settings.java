@@ -1,8 +1,20 @@
 package cn.zadui.reader.helper;
 
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.Iterator;
+import java.util.List;
+
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.preference.PreferenceManager;
+import android.util.Log;
+import cn.zadui.reader.service.DownloadService;
 
 public class Settings {
 	
@@ -30,7 +42,7 @@ public class Settings {
 	
 	public static final String PRE_HAS_NEW_VERSION="new_version_available";
 	
-	public static final String PR_HARD_KILLED="hard_killed";
+	public static final String PRE_HARD_KILLED="hard_killed";
 	
 	public static final String PRE_IMAGE_QUALITY="image_quality";
 	
@@ -137,11 +149,46 @@ public class Settings {
 	}
 	
 	public static boolean hardKilled(Context ctx){
-		return getSharedPreferences(ctx).getBoolean(PR_HARD_KILLED, false);
+		return getSharedPreferences(ctx).getBoolean(PRE_HARD_KILLED, false);
 	}
 	
     public static SharedPreferences getSharedPreferences(Context ctx) {
         return PreferenceManager.getDefaultSharedPreferences(ctx);
     }
+    
+	public static void updateSyncJob(Context ctx){
+		// Initialize background sync task
+		if (!Settings.getBooleanPreferenceValue(ctx, Settings.PRE_BACKGROUND_SYNC, true)) return;
+		long now=System.currentTimeMillis();
+		Calendar cal=new GregorianCalendar();
+		cal.setTimeInMillis(now);		
+		Intent sync=new Intent(ctx,DownloadService.class);
+		PendingIntent.getService(ctx, 0, sync, PendingIntent.FLAG_UPDATE_CURRENT);
+		AlarmManager alarm=(AlarmManager)ctx.getSystemService(Context.ALARM_SERVICE);
+		// the unit is minuts
+		int interval=Integer.valueOf(Settings.getStringPreferenceValue(ctx, Settings.PRE_SYNC_INTERVAL, Settings.DEF_SYNC_INTERVAL));
+		//interval=2;
+		cal.add(Calendar.MINUTE, interval);
+		alarm.setRepeating(
+				AlarmManager.RTC, 
+				cal.getTimeInMillis(), 
+				interval*60*1000, 
+				PendingIntent.getService(ctx, 0, sync, PendingIntent.FLAG_UPDATE_CURRENT)
+				);
+	}
+	
+	public static boolean installedFromGoogleMarket(Context ctx){
+		PackageManager pm=ctx.getPackageManager();
+		String installer=pm.getInstallerPackageName(ctx.getPackageName());
+		return (installer!=null && installer.equals("com.google.android.feedback"));
+		
+//		List<ApplicationInfo> list=pm.getInstalledApplications(0);
+//		for(Iterator<ApplicationInfo> iter=list.iterator();iter.hasNext();){
+//			ApplicationInfo ai=iter.next();
+//			Log.d("DDDDDDDDDDDD",ai.packageName+"-"+pm.getInstallerPackageName(ai.packageName));
+//		}
+//		return false;
+	}
+    
 
 }

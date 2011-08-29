@@ -4,11 +4,9 @@ import java.io.File;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
-import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -138,16 +136,6 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 			DownloadService.listener=this;
 			Intent sync=new Intent(getApplicationContext(),DownloadService.class);
 			startService(sync);
-			// Initialize background sync task
-//			PendingIntent.getService(getApplication(), 0, sync, PendingIntent.FLAG_UPDATE_CURRENT);
-//			AlarmManager alarm=(AlarmManager)getSystemService(ALARM_SERVICE);
-//			cal.add(Calendar.HOUR, 5);
-//			alarm.setRepeating(
-//					AlarmManager.RTC_WAKEUP, 
-//					cal.getTimeInMillis(), 
-//					5*60*60*1000, 
-//					PendingIntent.getService(getApplication(), 0, sync, PendingIntent.FLAG_UPDATE_CURRENT)
-//			);
 		}else{
 			UsageCollector.openApp(this.getApplicationContext());
 		}        
@@ -207,6 +195,10 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 		});
 	}
 
+	/**
+	 * If the app was installed by Google market then disable the 
+	 * update check
+	 */
 	@Override
 	protected Dialog onCreateDialog(int id) {
 		switch (id){
@@ -220,10 +212,16 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 						Intent intent = new Intent(Intent.ACTION_VIEW);
 						intent.setData(uri);
 						//intent.setDataAndType(uri,"application/android.com.app");
-						startActivity(intent);						
+						startActivity(intent);				
 					}
-					
-				}).create();
+				})
+				.setNegativeButton(R.string.cancel,new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						// do nothing here!
+					}
+				})
+				.create();
 		case HARD_KILLED:
 			return new AlertDialog.Builder(this)
 				.setTitle(R.string.must_upgrade_title)
