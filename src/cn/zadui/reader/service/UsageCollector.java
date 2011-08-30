@@ -28,16 +28,18 @@ import cn.zadui.reader.helper.Settings;
 public class UsageCollector {
 	
 	public static final String HOUR_PREFER_STR="000000000000000000000000";
+	public static final String INI_USAGE_STR="0";
 	
 	static final String TAG="UsageCollector";
 
 	public static void openApp(Context ctx){
 		long currentTime=System.currentTimeMillis();
 		long lastOpenTS=Settings.getLongPreferenceValue(ctx, Settings.PRE_LAST_OPENED_AT, currentTime);
-		long interval=currentTime-lastOpenTS;
+		//long interval=currentTime-lastOpenTS;
 		// Return if the interval to last opened less than 15 minutes.
 		//if (interval<15*60*1000) return;
-		String oldUsageStr=Settings.getStringPreferenceValue(ctx, Settings.PRE_USAGE,"0");
+		String oldUsageStr=Settings.getStringPreferenceValue(ctx, Settings.PRE_USAGE,INI_USAGE_STR);
+		Log.d("DDDDDDDDDDDDDDDDDDDDDDDDDD",oldUsageStr);
 		FAQCalendar lastOpened=new FAQCalendar(lastOpenTS);
 		FAQCalendar now=new FAQCalendar(currentTime);
 		if (now.getUnixDay()>lastOpened.getUnixDay()){
@@ -48,6 +50,7 @@ public class UsageCollector {
 			sb.append("1");
 			Settings.updateStringPreferenceValue(ctx, Settings.PRE_USAGE, sb.toString());
 		}else{
+			Log.i(TAG,oldUsageStr);
 			char[] usageChars=oldUsageStr.toCharArray();
 			int count=Character.getNumericValue(usageChars[usageChars.length-1]);
 			usageChars[usageChars.length-1]=numberToChar(count+1);
@@ -67,7 +70,7 @@ public class UsageCollector {
 	}
 	
 	public static void resetCollectedData(Context ctx){
-		Settings.updateStringPreferenceValue(ctx, Settings.PRE_USAGE, "");
+		Settings.updateStringPreferenceValue(ctx, Settings.PRE_USAGE, INI_USAGE_STR);
 		Settings.updateStringPreferenceValue(ctx, Settings.PRE_HOUR_PREFER_USAGE,HOUR_PREFER_STR);
 		Settings.updateLongPreferenceValue(ctx, Settings.PRE_COLLECTION_STARTED_AT, System.currentTimeMillis());
 	}
@@ -77,7 +80,7 @@ public class UsageCollector {
 	 * @param ctx
 	 */
 	public static void uploadCollectedUsageDate(Context ctx){
-		String usageStr=Settings.getStringPreferenceValue(ctx, Settings.PRE_USAGE,"0");
+		String usageStr=Settings.getStringPreferenceValue(ctx, Settings.PRE_USAGE,INI_USAGE_STR);
 		if (usageStr.length()<3) return;
 		URL url;
 		try {
@@ -138,7 +141,7 @@ public class UsageCollector {
 		sb.append("&app[version_code]="+String.valueOf(pi.versionCode));
 		//sb.append("&dev[device]="+Build.DEVICE);
 		//DisplayMetrics displaymetrics = new DisplayMetrics();
-		sb.append("&usage="+Settings.getStringPreferenceValue(ctx, Settings.PRE_USAGE, "0"));
+		sb.append("&usage="+Settings.getStringPreferenceValue(ctx, Settings.PRE_USAGE, INI_USAGE_STR));
 		sb.append("&hour="+Settings.getStringPreferenceValue(ctx, Settings.PRE_HOUR_PREFER_USAGE, HOUR_PREFER_STR));
 		return sb.toString();
 	}

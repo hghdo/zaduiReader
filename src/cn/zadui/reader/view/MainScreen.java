@@ -97,11 +97,11 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 			public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
 				if(view.getId()==R.id.v_read){
 					if (cursor.getInt(columnIndex)==1){
-						view.setBackgroundColor(Color.WHITE);
-						//view.setVisibility(View.INVISIBLE);
+						//view.setBackgroundColor(Color.WHITE);
+						view.setVisibility(View.INVISIBLE);
 					}else{
-						view.setBackgroundColor(getResources().getColor(R.color.thin_pink));
-						//view.setVisibility(View.VISIBLE);
+						//view.setBackgroundColor(getResources().getColor(R.color.thin_pink));
+						view.setVisibility(View.VISIBLE);
 					}
 					return true;
 				}
