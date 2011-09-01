@@ -3,7 +3,7 @@
       package="cn.zadui.reader"
       android:versionCode="57"
       android:versionName="1.0">
-    <uses-sdk android:minSdkVersion="5" />
+    <uses-sdk android:minSdkVersion="7" />
 
 	<!--  
     <application android:name=".service.CustomApplication" 
