@@ -16,6 +16,8 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -40,7 +42,10 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 	
 	static final int DIALOG_NEW_VERSION=1;
 	static final int HARD_KILLED=2;
+	static final int DIALOG_COMMENT=3;
 	
+	static final int MENU_COMMENT=0;
+	static final int MENU_ABOUT=1;
     /**
      * The columns we are interested in from the database
      */
@@ -174,6 +179,16 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 		startActivity(i);
 	}
 	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		menu.add(0, MENU_COMMENT, 0, R.string.comments).setIcon(getResources().getDrawable(android.R.drawable.ic_menu_preferences));
+		menu.add(0, MENU_ABOUT,1,R.string.about).setIcon(getResources().getDrawable(android.R.drawable.ic_menu_info_details));
+		return super.onCreateOptionsMenu(menu);
+	}
+	
+//	public boolean onOptionsItemSelected(MenuItem item){
+//		
+//	}
 
 	@Override
 	public void onStateChanged(final ServiceState state, final String info) {

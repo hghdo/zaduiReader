@@ -28,4 +28,7 @@
     
     <string name="image_quality">图片质量</string>
     <string name="max_archives">文章数量</string>
+    
+    <string name="comments">留言</string>
+    <string name="about">关于</string>
 </resources>
