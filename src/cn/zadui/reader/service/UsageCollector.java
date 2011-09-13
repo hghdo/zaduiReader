@@ -106,6 +106,41 @@ public class UsageCollector {
 		}
 	}
 	
+	public static void uploadUserComment(Context ctx){
+		String comment=Settings.getStringPreferenceValue(ctx, Settings.PRE_USER_COMMENTS, "");
+		if(comment.length()<10){
+			Settings.updateStringPreferenceValue(ctx, Settings.PRE_USER_COMMENTS, "");
+			return;
+		}
+		URL url;
+		try {
+			url = new URL(NetHelper.webPath("http", "/comments")); //"http://172.29.1.67:3389/collector");
+			HttpURLConnection uc = (HttpURLConnection) url.openConnection();
+	        uc.setDoInput(true);
+	        uc.setDoOutput(true);
+	        uc.setRequestMethod("POST");
+			StringBuilder sb=new StringBuilder();
+			sb.append("comment[uid]=");
+			sb.append(getDeviceId(ctx));
+			sb.append("&comment[content]=");
+			sb.append(comment);
+	        String data=sb.toString();
+	        Log.d(TAG,"user comment is => "+data);
+	        uc.getOutputStream().write(data.getBytes("UTF-8")); 
+	        uc.getOutputStream().close();
+	        if (uc.getResponseCode()==HttpURLConnection.HTTP_CREATED){
+	        	resetCollectedData(ctx);
+	        }
+	        uc.disconnect();
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+	}
+	
 	/**
 	 * Ping string includes:
 	 * uid

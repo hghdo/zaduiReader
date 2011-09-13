@@ -46,6 +46,8 @@ public class Settings {
 	
 	public static final String PRE_IMAGE_QUALITY="image_quality";
 	
+	public static final String PRE_USER_COMMENTS="user_comments";
+	
 	public static final String DEF_SYNC_INTERVAL="5";
 	public static final boolean DEF_WIFI_ONLY=true;
 	public static final String DEF_IMAGE_QUALITY="m";

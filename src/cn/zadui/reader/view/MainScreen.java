@@ -12,10 +12,10 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,8 +32,8 @@ import cn.zadui.reader.helper.Settings;
 import cn.zadui.reader.helper.StorageHelper;
 import cn.zadui.reader.provider.ReaderArchive.Archives;
 import cn.zadui.reader.service.DownloadService;
-import cn.zadui.reader.service.UsageCollector;
 import cn.zadui.reader.service.DownloadService.ServiceState;
+import cn.zadui.reader.service.UsageCollector;
 
 
 public class MainScreen extends ListActivity implements View.OnClickListener,DownloadService.StateListener{
@@ -69,6 +69,7 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
     ProgressBar downProgress;
     Cursor cursor;
     StorageHelper sh;
+    TextView tvUserComments;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -115,6 +116,7 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 					ImageView v=(ImageView)view;
 					//TODO If the thumb image is null then use a default image.
 					Bitmap img=BitmapFactory.decodeFile(imgDir+"/thumb96.jpg");
+					if (img==null)img=BitmapFactory.decodeResource(getResources(), R.drawable.default_thumb);
 					v.setImageBitmap(ImageHelper.getRoundedCornerBitmap(img,5));
 					return true;
 				}
@@ -186,9 +188,14 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 		return super.onCreateOptionsMenu(menu);
 	}
 	
-//	public boolean onOptionsItemSelected(MenuItem item){
-//		
-//	}
+	public boolean onOptionsItemSelected(MenuItem item){
+		if (item.getItemId()==MENU_COMMENT){
+			showDialog(DIALOG_COMMENT);
+			return true;
+		}else{
+			return false;
+		}
+	}
 
 	@Override
 	public void onStateChanged(final ServiceState state, final String info) {
@@ -242,7 +249,7 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 			return new AlertDialog.Builder(this)
 				.setTitle(R.string.must_upgrade_title)
 				.setMessage(R.string.must_upgrade_text)
-				.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+				.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 					
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
@@ -250,6 +257,26 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 						
 					}
 				}).create();
+		case DIALOG_COMMENT:
+            LayoutInflater factory = LayoutInflater.from(this);
+            final View textEntryView = factory.inflate(R.layout.comment_dialog, null);
+            tvUserComments=(TextView)textEntryView.findViewById(R.id.tv_user_comments);
+            return new AlertDialog.Builder(MainScreen.this)
+                .setIcon(android.R.drawable.ic_menu_edit)
+                .setTitle(R.string.please_comment)
+                .setView(textEntryView)
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                    	Settings.updateStringPreferenceValue(MainScreen.this, Settings.PRE_USER_COMMENTS, tvUserComments.getText().toString());
+                    }
+                })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        /* User clicked cancel so do some stuff */
+                    }
+                })
+                .create();
+			
 		}
 		return null;
 	}

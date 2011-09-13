@@ -29,6 +29,9 @@
     <string name="image_quality">图片质量</string>
     <string name="max_archives">文章数量</string>
     
+    <string name="please_comment">宝贵意见</string>
+    <string name="help_us_do_best">您的意见将帮助我们做出最好的软件</string>
+    
     <string name="comments">留言</string>
     <string name="about">关于</string>
 </resources>
