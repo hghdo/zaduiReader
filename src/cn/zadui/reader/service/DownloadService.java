@@ -34,6 +34,7 @@ import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.IBinder;
 import android.util.Log;
+import cn.zadui.reader.R;
 import cn.zadui.reader.helper.NetHelper;
 import cn.zadui.reader.helper.RssHelper;
 import cn.zadui.reader.helper.Settings;
@@ -59,11 +60,13 @@ public class DownloadService extends Service {
 		return null;
 	}
 
+	/*
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		handleCommand(intent);
 		return START_STICKY;
 	}
+	*/
 	
 	@Override
 	public void onStart(Intent intent, int startId) {
@@ -74,7 +77,7 @@ public class DownloadService extends Service {
 		if(isRunning) return;
 		int netType=NetHelper.currentNetwork(getBaseContext());
 		if (netType<0){
-			if(listener!=null) listener.onStateChanged(ServiceState.ERROR,"没有网络链接");
+			if(listener!=null) listener.onStateChanged(ServiceState.ERROR,getString(R.string.no_network_available));
 			return;			
 		}
 		storageHelper=new StorageHelper(getPackageName());
@@ -242,7 +245,8 @@ public class DownloadService extends Service {
 	    	if (listener!=null)	listener.onStateChanged(ServiceState.WORKING,"");
 	    	
 			if (networkType!=ConnectivityManager.TYPE_WIFI && Settings.getBooleanPreferenceValue(DownloadService.this, Settings.PRE_WIFI_ONLY, false)){
-				if(listener!=null) listener.onStateChanged(ServiceState.ERROR,"当前网络不是WIFI, 请使用WIFI连接");
+				//TODO use fix text hard code here
+				if(listener!=null) listener.onStateChanged(ServiceState.ERROR,DownloadService.this.getString(R.string.please_use_wifi));
 //				UsageCollector.uploadCollectedUsageDate(DownloadService.this.getApplicationContext());
 //				checkNewVersion();
 				listener=null;
@@ -250,6 +254,11 @@ public class DownloadService extends Service {
 				DownloadService.this.stopSelf();
 				return;
 			}
+			
+			// upload collected data to Server
+			UsageCollector.uploadCollectedUsageDate(DownloadService.this.getApplicationContext());
+			// upload user comments to server if had
+			UsageCollector.uploadUserComment(DownloadService.this.getApplicationContext());
 			
 			// check archives
 			String feed_url=NetHelper.webPath("http", "/archives/feed.xml");
@@ -260,9 +269,9 @@ public class DownloadService extends Service {
 				feed = reader.load(feed_url);	
 				feed.getPubDate();
 				if (feed.getPubDate().toGMTString().equals(Settings.getLastFeedPubDate(DownloadService.this))){
-					Log.d(TAG,"SSSSSSSSSSSSSSSSSame feed xml");
+					Log.d(TAG,"No updates of feed xml");
 					isRunning=false;
-					if(listener!=null) listener.onStateChanged(ServiceState.FINISHED,"已经是最新数据");
+					if(listener!=null) listener.onStateChanged(ServiceState.FINISHED,DownloadService.this.getString(R.string.no_new_contents));
 					listener=null;
 					DownloadService.this.stopSelf();
 					return;
@@ -299,7 +308,7 @@ public class DownloadService extends Service {
 				if(listener!=null) listener.onStateChanged(ServiceState.ERROR,e.getMessage());
 				e.printStackTrace();
 			} catch(DownloadException de){
-				if(listener!=null) listener.onStateChanged(ServiceState.ERROR,"下载数据内容失败，请检查网络");
+				if(listener!=null) listener.onStateChanged(ServiceState.ERROR,DownloadService.this.getString(R.string.download_error));
 				de.printStackTrace();
 			} catch(Exception ce){
 				if(listener!=null) listener.onStateChanged(ServiceState.ERROR,ce.getMessage());
@@ -322,8 +331,6 @@ public class DownloadService extends Service {
 			Settings.updateSyncJob(DownloadService.this.getBaseContext());
 			Log.i(TAG, "After update sync job");
 	    	
-			// upload collected data to Server
-			UsageCollector.uploadCollectedUsageDate(DownloadService.this.getApplicationContext());
 			// Check new version
 			checkNewVersion();
 			

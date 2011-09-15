@@ -40,7 +40,7 @@
         android:lines="3"
         android:autoText="false"
         android:capitalize="none"
-        android:hint="@string/help_us_do_best"
+        android:hint="@string/help_us_do_better"
         android:gravity="fill_horizontal"
         android:textAppearance="?android:attr/textAppearanceMedium" />
         

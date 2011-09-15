@@ -98,10 +98,8 @@ public class UsageCollector {
 	        }
 	        uc.disconnect();
 		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -129,7 +127,7 @@ public class UsageCollector {
 	        uc.getOutputStream().write(data.getBytes("UTF-8")); 
 	        uc.getOutputStream().close();
 	        if (uc.getResponseCode()==HttpURLConnection.HTTP_CREATED){
-	        	resetCollectedData(ctx);
+	        	Settings.updateStringPreferenceValue(ctx, Settings.PRE_USER_COMMENTS, "");
 	        }
 	        uc.disconnect();
 		} catch (MalformedURLException e) {

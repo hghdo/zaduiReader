@@ -25,7 +25,7 @@ public class StorageHelper {
 	}
 	
 	public File getArchivesDirInSdcard(){
-		File adir=new File(getAppExtStorageRoot(),"cache/archives");
+		File adir=new File(getAppExtStorageRoot(),"files/archives");
 		adir.mkdirs();
 		return adir;
 	}

@@ -116,8 +116,12 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 					ImageView v=(ImageView)view;
 					//TODO If the thumb image is null then use a default image.
 					Bitmap img=BitmapFactory.decodeFile(imgDir+"/thumb96.jpg");
-					if (img==null)img=BitmapFactory.decodeResource(getResources(), R.drawable.default_thumb);
-					v.setImageBitmap(ImageHelper.getRoundedCornerBitmap(img,5));
+					if (img==null){
+						img=BitmapFactory.decodeResource(getResources(), R.drawable.default_thumb);
+					}else{
+						//v.setImageBitmap(ImageHelper.getRoundedCornerBitmap(img,5));
+					}
+					v.setImageBitmap(img);
 					return true;
 				}
 				return false;
@@ -183,7 +187,7 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		menu.add(0, MENU_COMMENT, 0, R.string.comments).setIcon(getResources().getDrawable(android.R.drawable.ic_menu_preferences));
+		menu.add(0, MENU_COMMENT, 0, R.string.comments).setIcon(getResources().getDrawable(android.R.drawable.ic_menu_edit));
 		menu.add(0, MENU_ABOUT,1,R.string.about).setIcon(getResources().getDrawable(android.R.drawable.ic_menu_info_details));
 		return super.onCreateOptionsMenu(menu);
 	}
