@@ -98,20 +98,6 @@ public class DownloadService extends Service {
 		public void onStateChanged(ServiceState state,String info);
 	}
 	
-	public void checkNewVersion(){
-		if (!Settings.installedFromGoogleMarket(this.getBaseContext())) return;
-		if (Settings.getBooleanPreferenceValue(this, Settings.PRE_HAS_NEW_VERSION, false)) return;
-		String version=NetHelper.getStringFromNetIO(NetHelper.webPath("http", "/version"));
-		if (version==null) return;
-		try {
-			int currentVersion=getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
-			if (currentVersion>Integer.parseInt(version)){
-				Settings.updateBooleanPreferenceValue(this, Settings.PRE_HAS_NEW_VERSION, true);
-			}
-		} catch (NameNotFoundException e) {
-			e.printStackTrace();
-		}
-	}
 	
 	/**
 	 * Download zip pkg from remote server and unzip.
@@ -330,10 +316,8 @@ public class DownloadService extends Service {
 			// update next sync time
 			Settings.updateSyncJob(DownloadService.this.getBaseContext());
 			Log.i(TAG, "After update sync job");
-	    	
 			// Check new version
-			checkNewVersion();
-			
+			NetHelper.checkNewVersion(DownloadService.this.getApplicationContext());
 			isRunning=false;
 			if(listener!=null) listener.onStateChanged(ServiceState.FINISHED,"");
 			listener=null;

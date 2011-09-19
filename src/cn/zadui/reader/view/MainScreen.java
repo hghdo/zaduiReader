@@ -257,8 +257,8 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 				.create();
 		case DIALOG_HARD_KILLED:
 			return new AlertDialog.Builder(MainScreen.this)
-				.setTitle(R.string.must_upgrade_title)
-				.setMessage(R.string.must_upgrade_text)
+				.setTitle(R.string.hard_kill_title)
+				.setMessage(R.string.hard_kill_text)
 				.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 					
 					@Override
@@ -288,11 +288,13 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 		case DIALOG_ABOUT:
             factory = LayoutInflater.from(MainScreen.this);
             final View aboutView = factory.inflate(R.layout.about_dialog, null);
+            TextView tvAbout=(TextView)aboutView.findViewById(R.id.tv_about);
+            tvAbout.setText(String.format(getString(R.string.about_text),getString(R.string.app_name)));
             TextView tvCurrentVersion=(TextView)aboutView.findViewById(R.id.tv_current_version);
             PackageInfo pi;
 			try {
 				pi = getPackageManager().getPackageInfo(getPackageName(), PackageManager.GET_META_DATA);
-	            tvCurrentVersion.setText(String.format(getString(R.string.current_version), pi.versionName));
+	            tvCurrentVersion.setText(String.format(getString(R.string.current_version), pi.versionName, pi.versionCode));
 			} catch (NameNotFoundException e) {
 				e.printStackTrace();
 			}

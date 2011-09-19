@@ -12,6 +12,7 @@ import java.net.URLEncoder;
 import cn.zadui.reader.service.DownloadService.ServiceState;
 
 import android.content.Context;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
@@ -31,9 +32,9 @@ public class NetHelper {
 	}
 	
 	/**
-	 * 
+	 * Detects current network connection type
 	 * @param ctx
-	 * @return
+	 * @return -1 means no network available.
 	 */
 	public static int currentNetwork(Context ctx){
 		ConnectivityManager connectivityManager = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -48,6 +49,25 @@ public class NetHelper {
 		con.setReadTimeout(NetHelper.READ_TIMEOUT);
 		return con;
 	}
+	
+	/**
+	 * Check new version only for third party market because Google Android Market provides update function. 
+	 */
+	public static void checkNewVersion(Context ctx){
+		if (Settings.installedFromGoogleMarket(ctx)) return;
+		if (Settings.getBooleanPreferenceValue(ctx, Settings.PRE_HAS_NEW_VERSION, false)) return;
+		String version=getStringFromNetIO(NetHelper.webPath("http", "/version"));
+		if (version==null) return;
+		try {
+			int currentVersion=ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0).versionCode;
+			if (currentVersion>Integer.parseInt(version)){
+				Settings.updateBooleanPreferenceValue(ctx, Settings.PRE_HAS_NEW_VERSION, true);
+			}
+		} catch (NameNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	
 	public static String getStringFromNetIO(String url){
 		HttpURLConnection con=null;

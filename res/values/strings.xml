@@ -19,12 +19,10 @@
     <string name="sync_interval_5h">每5小时更新一次</string>
     <string name="sync_interval_24h">每天更新一次</string>
     
+    <!-- version control -->
     <string name="new_version_available">发现新版本</string>
-    <string name="ok">好的</string>
-    <string name="cancel">取消</string>
-    
-    <string name="must_upgrade_title">请使用新版</string>
-    <string name="must_upgrade_text">您所使用的版本已经不再被支持，请使用最新版本！</string>
+    <string name="hard_kill_title">请使用新版</string>
+    <string name="hard_kill_text">您所使用的版本已经不再被支持，请使用最新版本！</string>
     
     <string name="image_quality">图片质量</string>
     <string name="max_archives">文章数量</string>
@@ -40,7 +38,10 @@
     <string name="no_network_available">没有网络链接</string>
     <string name="download_error">下载数据内容失败，请检查网络</string>
     
-    <string name="about_text">感谢您使用美丽日志。</string>
-    <string name="current_version">您当前使用的版本: %1$s</string>
+    <string name="about_text">感谢您使用%1$s，希望通过我们的努力让美丽变得更容易，让生活变得更精彩。\n</string>
+    <string name="current_version">当前版本: %1$s (%2$s)</string>
+    
+    <string name="ok">好的</string>
+    <string name="cancel">取消</string>
     
 </resources>

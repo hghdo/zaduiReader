@@ -6,6 +6,7 @@
   android:layout_height="fill_parent"
   android:padding="20dip" >
     <TextView 
+    	android:id="@+id/tv_about"
     	android:textAppearance="?android:attr/textAppearanceMedium"
 	    android:layout_width="fill_parent"
 	  	android:layout_height="wrap_content"

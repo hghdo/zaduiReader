@@ -179,6 +179,11 @@ public class Settings {
 				);
 	}
 	
+	/**
+	 * 
+	 * @param ctx
+	 * @return true is the app is installed from Google Android Market
+	 */
 	public static boolean installedFromGoogleMarket(Context ctx){
 		PackageManager pm=ctx.getPackageManager();
 		String installer=pm.getInstallerPackageName(ctx.getPackageName());
