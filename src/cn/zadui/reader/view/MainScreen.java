@@ -9,6 +9,9 @@ import android.app.Dialog;
 import android.app.ListActivity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -26,7 +29,6 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 import cn.zadui.reader.R;
-import cn.zadui.reader.helper.ImageHelper;
 import cn.zadui.reader.helper.NetHelper;
 import cn.zadui.reader.helper.Settings;
 import cn.zadui.reader.helper.StorageHelper;
@@ -40,9 +42,10 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 	
 	static final String TAG="MainScreen";
 	
-	static final int DIALOG_NEW_VERSION=1;
-	static final int HARD_KILLED=2;
-	static final int DIALOG_COMMENT=3;
+	static final int DIALOG_NEW_VERSION=10;
+	static final int DIALOG_HARD_KILLED=20;
+	static final int DIALOG_COMMENT=30;
+	static final int DIALOG_ABOUT=40;
 	
 	static final int MENU_COMMENT=0;
 	static final int MENU_ABOUT=1;
@@ -196,9 +199,11 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 		if (item.getItemId()==MENU_COMMENT){
 			showDialog(DIALOG_COMMENT);
 			return true;
-		}else{
-			return false;
+		}else if (item.getItemId()==MENU_ABOUT){
+			showDialog(DIALOG_ABOUT);
+			return true;
 		}
+		return false;
 	}
 
 	@Override
@@ -228,14 +233,15 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 	 */
 	@Override
 	protected Dialog onCreateDialog(int id) {
+		LayoutInflater factory;
 		switch (id){
 		case DIALOG_NEW_VERSION:
-			return new AlertDialog.Builder(this)
+			return new AlertDialog.Builder(MainScreen.this)
 				.setTitle(R.string.new_version_available)
 				.setPositiveButton(R.string.ok,new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						Uri uri = Uri.parse(NetHelper.webPath("http", "/test.apk")); //这里是APK路径
+						Uri uri = Uri.parse(NetHelper.webPath("http", "/test.apk")); //
 						Intent intent = new Intent(Intent.ACTION_VIEW);
 						intent.setData(uri);
 						//intent.setDataAndType(uri,"application/android.com.app");
@@ -249,20 +255,19 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 					}
 				})
 				.create();
-		case HARD_KILLED:
-			return new AlertDialog.Builder(this)
+		case DIALOG_HARD_KILLED:
+			return new AlertDialog.Builder(MainScreen.this)
 				.setTitle(R.string.must_upgrade_title)
 				.setMessage(R.string.must_upgrade_text)
 				.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 					
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						// TODO Auto-generated method stub
-						
+						// TODO If the version is hard killed then user must update to new version.
 					}
 				}).create();
 		case DIALOG_COMMENT:
-            LayoutInflater factory = LayoutInflater.from(this);
+            factory = LayoutInflater.from(MainScreen.this);
             final View textEntryView = factory.inflate(R.layout.comment_dialog, null);
             tvUserComments=(TextView)textEntryView.findViewById(R.id.tv_user_comments);
             return new AlertDialog.Builder(MainScreen.this)
@@ -280,6 +285,25 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
                     }
                 })
                 .create();
+		case DIALOG_ABOUT:
+            factory = LayoutInflater.from(MainScreen.this);
+            final View aboutView = factory.inflate(R.layout.about_dialog, null);
+            TextView tvCurrentVersion=(TextView)aboutView.findViewById(R.id.tv_current_version);
+            PackageInfo pi;
+			try {
+				pi = getPackageManager().getPackageInfo(getPackageName(), PackageManager.GET_META_DATA);
+	            tvCurrentVersion.setText(String.format(getString(R.string.current_version), pi.versionName));
+			} catch (NameNotFoundException e) {
+				e.printStackTrace();
+			}
+			return new AlertDialog.Builder(MainScreen.this)
+			.setTitle(R.string.app_name)
+			.setView(aboutView)
+			.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+				}
+			}).create();
 			
 		}
 		return null;

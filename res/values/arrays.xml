@@ -15,9 +15,9 @@
     </string-array>
     
     <string-array name="image_quality_items">
-        <item>高质量图片</item>
-        <item>标准质量图片</item>
-        <item>低质量图片</item>  
+        <item>高质量(适合大屏幕)</item>
+        <item>标准质量</item>
+        <item>低质量</item>  
     </string-array>
     <string-array name="image_quality_values">
         <item>h</item>

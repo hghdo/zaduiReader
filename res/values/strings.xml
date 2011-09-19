@@ -30,7 +30,7 @@
     <string name="max_archives">文章数量</string>
     
     <string name="please_comment">宝贵意见</string>
-    <string name="help_us_do_better">您的意见将帮助我们做的更好</string>
+    <string name="help_us_do_better">请帮助我们做的更好！</string>
     
     <string name="comments">留言</string>
     <string name="about">关于</string>
@@ -39,5 +39,8 @@
     <string name="please_use_wifi">当前网络不是WIFI, 请使用WIFI连接</string>
     <string name="no_network_available">没有网络链接</string>
     <string name="download_error">下载数据内容失败，请检查网络</string>
+    
+    <string name="about_text">感谢您使用美丽日志。</string>
+    <string name="current_version">您当前使用的版本: %1$s</string>
     
 </resources>
