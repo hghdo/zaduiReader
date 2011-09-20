@@ -3,3 +3,4 @@
 gen/
 bin/
 *.swp
+.DS_Store
