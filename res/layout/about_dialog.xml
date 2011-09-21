@@ -18,4 +18,11 @@
 	    android:layout_width="fill_parent"
 	  	android:layout_height="wrap_content"
 	  	android:textColor="@color/white" />
+	<TextView 
+    	android:textAppearance="?android:attr/textAppearanceMedium"
+    	android:id="@+id/tv_down_new_version"
+	    android:layout_width="fill_parent"
+	  	android:layout_height="wrap_content"
+	  	android:textColor="@color/white" />
+	  	
 </LinearLayout>

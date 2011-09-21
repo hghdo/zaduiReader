@@ -20,7 +20,12 @@
     <string name="sync_interval_24h">每天更新一次</string>
     
     <!-- version control -->
-    <string name="new_version_available">发现新版本</string>
+    <string name="new_version_available_title">软件更新</string>
+    <string name="new_version_available_text">
+    已经有新版本，为了保证您获得最好的体验，我们建议您下载最新的版本。\n
+    点击确定将打开浏览器并下载，下载完成后即可安装。
+    </string>
+    
     <string name="hard_kill_title">请使用新版</string>
     <string name="hard_kill_text">您所使用的版本已经不再被支持，请使用最新版本！</string>
     

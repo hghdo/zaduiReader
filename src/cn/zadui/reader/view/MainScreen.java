@@ -1,6 +1,11 @@
 package cn.zadui.reader.view;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -17,6 +22,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -237,7 +243,8 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 		switch (id){
 		case DIALOG_NEW_VERSION:
 			return new AlertDialog.Builder(MainScreen.this)
-				.setTitle(R.string.new_version_available)
+				.setTitle(R.string.new_version_available_title)
+				.setMessage(R.string.new_version_available_text)
 				.setPositiveButton(R.string.ok,new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
@@ -311,5 +318,40 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 		return null;
 	}
 	
+	private class UpdateApp extends Thread{
+		
+		public void run(){
+			try {
+				URL url = new URL(NetHelper.webPath("http", "/version"));
+			    HttpURLConnection c = (HttpURLConnection) url.openConnection();
+			    c.setRequestMethod("GET");
+			    c.setDoOutput(true);
+			    c.connect();
+			
+			    String PATH = Environment.getExternalStorageDirectory() + "/download/";
+			    File file = new File(PATH);
+			    file.mkdirs();
+			    File outputFile = new File(file, "app.apk");
+			    FileOutputStream fos = new FileOutputStream(outputFile);
+			
+			    InputStream is = c.getInputStream();
+			
+			    byte[] buffer = new byte[1024];
+			    int len1 = 0;
+			    while ((len1 = is.read(buffer)) != -1) {
+			        fos.write(buffer, 0, len1);
+			    }
+			    fos.close();
+			    is.close();//till here, it works fine - .apk is download to my sdcard in download file
+			    
+			    Intent intent = new Intent(Intent.ACTION_VIEW);
+			    intent.setDataAndType(Uri.fromFile(new File(Environment.getExternalStorageDirectory() + "/download/" + "app.apk")), "application/vnd.android.package-archive");
+			    startActivity(intent);	
+			
+			} catch (IOException e) {
+			    Toast.makeText(getApplicationContext(), "Update error!", Toast.LENGTH_LONG).show();
+			}
+		}  		
+	}
     
 }
