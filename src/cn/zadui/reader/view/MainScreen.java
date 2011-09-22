@@ -24,6 +24,8 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -73,6 +75,10 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
     /** The index of the title column */
     private static final int COLUMN_INDEX_TITLE = 1;
     
+    private static final int NO_NETWORK_AVAILABLE=0;
+    private static final int DOWNLOAD_ERROR=1;
+    private static final int DOWNLOAD_SUCCESS=2;
+	private Handler updateHandler;
     SimpleCursorAdapter adapter;
     ImageView btnRefresh;
     ImageView btnSetting;
@@ -80,7 +86,8 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
     ProgressBar downProgress;
     Cursor cursor;
     StorageHelper sh;
-    TextView tvUserComments;
+    TextView tvUserComments;	
+
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -114,10 +121,8 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 			public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
 				if(view.getId()==R.id.v_read){
 					if (cursor.getInt(columnIndex)==1){
-						//view.setBackgroundColor(Color.WHITE);
 						view.setVisibility(View.INVISIBLE);
 					}else{
-						//view.setBackgroundColor(getResources().getColor(R.color.thin_pink));
 						view.setVisibility(View.VISIBLE);
 					}
 					return true;
@@ -125,13 +130,8 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 				if(columnIndex==cursor.getColumnIndex(Archives.THUMB_URL)){
 					File imgDir=new File(sh.getArchivesDirInSdcard().getAbsolutePath(),cursor.getString(cursor.getColumnIndex(Archives.GUID)));
 					ImageView v=(ImageView)view;
-					//TODO If the thumb image is null then use a default image.
 					Bitmap img=BitmapFactory.decodeFile(imgDir+"/thumb96.jpg");
-					if (img==null){
-						img=BitmapFactory.decodeResource(getResources(), R.drawable.default_thumb);
-					}else{
-						//v.setImageBitmap(ImageHelper.getRoundedCornerBitmap(img,5));
-					}
+					if (img==null)img=BitmapFactory.decodeResource(getResources(), R.drawable.default_thumb);
 					v.setImageBitmap(img);
 					return true;
 				}
@@ -139,7 +139,29 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 			}
 		});
         setListAdapter(adapter);  
-           
+        
+    	updateHandler=new Handler(){
+			@Override
+			public void handleMessage(Message msg) {
+				super.handleMessage(msg);
+				dismissDialog(DIALOG_UPDATE);
+				switch(msg.what){
+				case NO_NETWORK_AVAILABLE:
+					Toast.makeText(MainScreen.this, R.string.no_network_available,Toast.LENGTH_SHORT).show();
+					break;
+				case DOWNLOAD_ERROR:
+					Toast.makeText(MainScreen.this, R.string.download_error,Toast.LENGTH_SHORT).show();
+					break;
+				case DOWNLOAD_SUCCESS:
+					File updateAPK=StorageHelper.getUpdateApkPath();
+				    Intent intent = new Intent(Intent.ACTION_VIEW);
+				    intent.setDataAndType(Uri.fromFile(updateAPK), "application/vnd.android.package-archive");
+				    startActivity(intent);
+				    break;
+				}
+			}
+    	};
+
 		long ms=Settings.getLongPreferenceValue(this, Settings.PRE_INSTALLED_AT, 0);
 		if (ms==0){
 			// First time open initial all collection data
@@ -161,7 +183,6 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 			startService(sync);
 		}else{
 			UsageCollector.openApp(this.getApplicationContext());
-			Log.d(TAG,"AAAAAAAAAAAAAAAAAAAAAA");
 			if (Settings.getBooleanPreferenceValue(this, Settings.PRE_HAS_NEW_VERSION, false)) {
 				showDialog(DIALOG_NEW_VERSION);
 			}
@@ -327,21 +348,22 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 		return null;
 	}
 	
-	private class UpdateApp extends Thread{
-		
+	private class UpdateApp extends Thread{		
 		public void run(){
+			int netType=NetHelper.currentNetwork(getBaseContext());
+			if (netType<0){
+				updateHandler.sendEmptyMessage(NO_NETWORK_AVAILABLE);
+				return;
+			}
+		    File updateAPK=StorageHelper.getUpdateApkPath();
 			try {
 				URL url = new URL(NetHelper.webPath("http", "/dl/client"));
 			    HttpURLConnection c = (HttpURLConnection) url.openConnection();
 			    c.setRequestMethod("GET");
 			    c.setDoOutput(true);
 			    c.connect();
-			    String PATH = Environment.getExternalStorageDirectory() + "/Download/";
-			    File file = new File(PATH);
-			    file.mkdirs();
-			    File outputFile = new File(file, "zaduiReader.apk");
-			    FileOutputStream fos = new FileOutputStream(outputFile);
-			
+
+			    FileOutputStream fos = new FileOutputStream(updateAPK);		
 			    InputStream is = c.getInputStream();
 			
 			    byte[] buffer = new byte[1024];
@@ -351,20 +373,9 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 			    }
 			    fos.close();
 			    is.close();//till here, it works fine - .apk is download to my sdcard in download file
-			    MainScreen.this.runOnUiThread(new Runnable(){
-					@Override
-					public void run() {
-						MainScreen.this.dismissDialog(DIALOG_UPDATE);
-					}
-			    });
-			    
-			    
-			    Intent intent = new Intent(Intent.ACTION_VIEW);
-			    intent.setDataAndType(Uri.fromFile(outputFile), "application/vnd.android.package-archive");
-			    startActivity(intent);
-			
+			    updateHandler.sendEmptyMessage(DOWNLOAD_SUCCESS);
 			} catch (IOException e) {
-			    Toast.makeText(getApplicationContext(), "Update error!", Toast.LENGTH_LONG).show();
+				updateHandler.sendEmptyMessage(DOWNLOAD_ERROR);
 			}
 		}  		
 	}

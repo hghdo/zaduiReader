@@ -25,7 +25,7 @@ public class StorageHelper {
 	}
 	
 	public File getArchivesDirInSdcard(){
-		File adir=new File(getAppExtStorageRoot(),"files/archives");
+		File adir=new File(getAppExtStorageRoot(),"cache/archives");
 		adir.mkdirs();
 		return adir;
 	}
@@ -63,6 +63,12 @@ public class StorageHelper {
 		}
 		return (path.delete());
 	}	
-	
+
+	public static File getUpdateApkPath(){
+	    File dir4UpdateAPK = new File(Environment.getExternalStorageDirectory() + "/Download/");
+	    dir4UpdateAPK.mkdirs();
+	    return new File(dir4UpdateAPK, "zaduiReader.apk");
+	}
+
 	
 }
