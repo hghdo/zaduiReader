@@ -22,9 +22,9 @@ public class NetHelper {
 	public static final int CONNECT_TIMEOUT=20*1000;
 	public static final int READ_TIMEOUT=20*1000;
 	
-	//public static final String HOST_NAME="172.29.1.67";
+	public static final String HOST_NAME="172.29.0.28";
 //	public static final String HOST_NAME="192.168.1.108";
-	public static final String HOST_NAME="meili.51leiju.cn";
+//	public static final String HOST_NAME="meili.51leiju.cn";
 	public static final String PORT="3389";
 	
 	public static String webPath(String protocol,String path){
@@ -54,13 +54,17 @@ public class NetHelper {
 	 * Check new version only for third party market because Google Android Market provides update function. 
 	 */
 	public static void checkNewVersion(Context ctx){
+		Log.d(TAG,"IN checkNewVersion method");
 		if (Settings.installedFromGoogleMarket(ctx)) return;
 		if (Settings.getBooleanPreferenceValue(ctx, Settings.PRE_HAS_NEW_VERSION, false)) return;
-		String version=getStringFromNetIO(NetHelper.webPath("http", "/version"));
-		if (version==null) return;
+		String lastBuild=getStringFromNetIO(NetHelper.webPath("http", "/version"));
+		Log.d(TAG,"Last version is => "+lastBuild);
+		if (lastBuild==null) return;
 		try {
 			int currentVersion=ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0).versionCode;
-			if (currentVersion>Integer.parseInt(version)){
+			Log.d(TAG,"installed version is => "+String.valueOf(currentVersion));
+			if (Integer.parseInt(lastBuild)>currentVersion){
+				Log.d(TAG,"Set new version available flag");
 				Settings.updateBooleanPreferenceValue(ctx, Settings.PRE_HAS_NEW_VERSION, true);
 			}
 		} catch (NameNotFoundException e) {
@@ -89,4 +93,6 @@ public class NetHelper {
 			con.disconnect();
 		}
 	}
+	
+	static final String TAG="NetHelper";
 }

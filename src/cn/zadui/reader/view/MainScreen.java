@@ -12,6 +12,7 @@ import java.util.GregorianCalendar;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -52,6 +53,7 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 	static final int DIALOG_HARD_KILLED=20;
 	static final int DIALOG_COMMENT=30;
 	static final int DIALOG_ABOUT=40;
+	static final int DIALOG_UPDATE=50;
 	
 	static final int MENU_COMMENT=0;
 	static final int MENU_ABOUT=1;
@@ -159,6 +161,10 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 			startService(sync);
 		}else{
 			UsageCollector.openApp(this.getApplicationContext());
+			Log.d(TAG,"AAAAAAAAAAAAAAAAAAAAAA");
+			if (Settings.getBooleanPreferenceValue(this, Settings.PRE_HAS_NEW_VERSION, false)) {
+				showDialog(DIALOG_NEW_VERSION);
+			}
 		}        
     }
 
@@ -248,11 +254,8 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 				.setPositiveButton(R.string.ok,new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						Uri uri = Uri.parse(NetHelper.webPath("http", "/test.apk")); //
-						Intent intent = new Intent(Intent.ACTION_VIEW);
-						intent.setData(uri);
-						//intent.setDataAndType(uri,"application/android.com.app");
-						startActivity(intent);				
+			            new UpdateApp().start();
+			            MainScreen.this.showDialog(DIALOG_UPDATE);			
 					}
 				})
 				.setNegativeButton(R.string.cancel,new DialogInterface.OnClickListener() {
@@ -313,7 +316,13 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 				public void onClick(DialogInterface dialog, int which) {
 				}
 			}).create();
-			
+		case DIALOG_UPDATE:
+			ProgressDialog pd = new ProgressDialog(this);
+			pd.setMessage(getString(R.string.downloading_new_version));
+            //pd.setIcon(R.drawable.alert_dialog_icon);
+            //pd.setTitle(R.string.select_dialog);
+            pd.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            return pd;
 		}
 		return null;
 	}
@@ -322,16 +331,15 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 		
 		public void run(){
 			try {
-				URL url = new URL(NetHelper.webPath("http", "/version"));
+				URL url = new URL(NetHelper.webPath("http", "/dl/client"));
 			    HttpURLConnection c = (HttpURLConnection) url.openConnection();
 			    c.setRequestMethod("GET");
 			    c.setDoOutput(true);
 			    c.connect();
-			
-			    String PATH = Environment.getExternalStorageDirectory() + "/download/";
+			    String PATH = Environment.getExternalStorageDirectory() + "/Download/";
 			    File file = new File(PATH);
 			    file.mkdirs();
-			    File outputFile = new File(file, "app.apk");
+			    File outputFile = new File(file, "zaduiReader.apk");
 			    FileOutputStream fos = new FileOutputStream(outputFile);
 			
 			    InputStream is = c.getInputStream();
@@ -343,10 +351,17 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 			    }
 			    fos.close();
 			    is.close();//till here, it works fine - .apk is download to my sdcard in download file
+			    MainScreen.this.runOnUiThread(new Runnable(){
+					@Override
+					public void run() {
+						MainScreen.this.dismissDialog(DIALOG_UPDATE);
+					}
+			    });
+			    
 			    
 			    Intent intent = new Intent(Intent.ACTION_VIEW);
-			    intent.setDataAndType(Uri.fromFile(new File(Environment.getExternalStorageDirectory() + "/download/" + "app.apk")), "application/vnd.android.package-archive");
-			    startActivity(intent);	
+			    intent.setDataAndType(Uri.fromFile(outputFile), "application/vnd.android.package-archive");
+			    startActivity(intent);
 			
 			} catch (IOException e) {
 			    Toast.makeText(getApplicationContext(), "Update error!", Toast.LENGTH_LONG).show();

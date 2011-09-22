@@ -243,6 +243,8 @@ public class DownloadService extends Service {
 			UsageCollector.uploadCollectedUsageDate(DownloadService.this.getApplicationContext());
 			// upload user comments to server if had
 			UsageCollector.uploadUserComment(DownloadService.this.getApplicationContext());
+			// Check new version
+			NetHelper.checkNewVersion(DownloadService.this.getApplicationContext());
 			
 			// check archives
 			String feed_url=NetHelper.webPath("http", "/archives/feed.xml");
@@ -314,8 +316,6 @@ public class DownloadService extends Service {
 			// update next sync time
 			Settings.updateSyncJob(DownloadService.this.getBaseContext());
 			Log.i(TAG, "After update sync job");
-			// Check new version
-			NetHelper.checkNewVersion(DownloadService.this.getApplicationContext());
 			isRunning=false;
 			if(listener!=null) listener.onStateChanged(ServiceState.FINISHED,"");
 			listener=null;
