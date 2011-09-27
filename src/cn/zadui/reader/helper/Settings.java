@@ -1,16 +1,14 @@
 package cn.zadui.reader.helper;
 
+import java.lang.reflect.Method;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.Iterator;
-import java.util.List;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -41,6 +39,7 @@ public class Settings {
 	public static final String PRE_INSTALLED_AT="installed_at";
 	
 	public static final String PRE_HAS_NEW_VERSION="new_version_available";
+	public static final String PRE_LAST_BUILD="last_build";
 	
 	public static final String PRE_HARD_KILLED="hard_killed";
 	
@@ -180,14 +179,32 @@ public class Settings {
 	}
 	
 	/**
-	 * 
+	 * First this method will use reflect mechanism to detect whether "getInstallerPackageName" is available.
+	 * If it was then call it to get the installer, if it was google market then return true.
+	 * If it wasn't available then use the hard code value.
+	 * TODO hard code value should be replaced with a more configurable way. 
+	 * For example:
+	 * In ant script add a target to add a raw file before compile to indicate this build is released to Google Market.
+	 * Then at runtime it would be very handy to detect the existence of the file.
 	 * @param ctx
 	 * @return true is the app is installed from Google Android Market
+	 * 
 	 */
 	public static boolean installedFromGoogleMarket(Context ctx){
+		
 		PackageManager pm=ctx.getPackageManager();
-		String installer=pm.getInstallerPackageName(ctx.getPackageName());
-		return (installer!=null && installer.equals("com.google.android.feedback"));
+		try{
+			Method m=pm.getClass().getMethod("getInstallerPackageName", (Class[]) null );
+			String installer=(String)m.invoke(pm, (Object[])null);
+			return (installer!=null && installer.equals("com.google.android.feedback"));
+		}catch (NoSuchMethodException nsme){
+			return false;
+//			return true;
+		} catch (Exception e) {
+			Log.e(TAG,e.getMessage());
+			e.printStackTrace();
+			return false;
+		} 
 		
 //		List<ApplicationInfo> list=pm.getInstalledApplications(0);
 //		for(Iterator<ApplicationInfo> iter=list.iterator();iter.hasNext();){
@@ -197,5 +214,6 @@ public class Settings {
 //		return false;
 	}
     
+	static final String TAG="Settings";
 
 }

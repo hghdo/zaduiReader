@@ -183,9 +183,19 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 			startService(sync);
 		}else{
 			UsageCollector.openApp(this.getApplicationContext());
-			if (Settings.getBooleanPreferenceValue(this, Settings.PRE_HAS_NEW_VERSION, false)) {
-				showDialog(DIALOG_NEW_VERSION);
-			}
+			if (NetHelper.needUpdate(this)) showDialog(DIALOG_NEW_VERSION);
+//			try {
+//				int currentVersion=getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
+//				if (currentVersion>=Settings.getLongPreferenceValue(this, Settings.PRE_LAST_BUILD, 0)){
+//					Settings.updateBooleanPreferenceValue(this, Settings.PRE_HAS_NEW_VERSION, false);
+//					Settings.updateLongPreferenceValue(this, Settings.PRE_LAST_BUILD, currentVersion);					
+//				}else{
+//					showDialog(DIALOG_NEW_VERSION);
+//				}
+//			} catch (NameNotFoundException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 		}        
     }
 
@@ -307,7 +317,11 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
                 .setView(textEntryView)
                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
+                    	String comment=tvUserComments.getText().toString();
+                    	if (comment!=null && comment.length()>10){
                     	Settings.updateStringPreferenceValue(MainScreen.this, Settings.PRE_USER_COMMENTS, tvUserComments.getText().toString());
+                    	}
+                    	tvUserComments.setText("");
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {

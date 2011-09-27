@@ -3,13 +3,8 @@ package cn.zadui.reader.helper;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLEncoder;
-
-import cn.zadui.reader.service.DownloadService.ServiceState;
 
 import android.content.Context;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -22,10 +17,10 @@ public class NetHelper {
 	public static final int CONNECT_TIMEOUT=20*1000;
 	public static final int READ_TIMEOUT=20*1000;
 	
-	public static final String HOST_NAME="172.29.0.28";
-//	public static final String HOST_NAME="192.168.1.108";
-//	public static final String HOST_NAME="meili.51leiju.cn";
-	public static final String PORT="3389";
+//	public static final String HOST_NAME="172.29.0.28";
+//	public static final String HOST_NAME="192.168.1.104";
+	public static final String HOST_NAME="meili.51leiju.cn";
+	public static final String PORT="80";
 	
 	public static String webPath(String protocol,String path){
 		return protocol+"://"+HOST_NAME+":"+PORT+path;
@@ -45,9 +40,28 @@ public class NetHelper {
 	public static HttpURLConnection buildUrlConnection(String url) throws IOException{
 		URL u=new URL(url);
 		HttpURLConnection con=(HttpURLConnection)u.openConnection();
+		con.setInstanceFollowRedirects(true);
 		con.setConnectTimeout(NetHelper.CONNECT_TIMEOUT);
 		con.setReadTimeout(NetHelper.READ_TIMEOUT);
 		return con;
+	}
+	
+	public static boolean needUpdate(Context ctx){
+		try {
+			int currentVersion=ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0).versionCode;
+			boolean hasNewVersion=Settings.getBooleanPreferenceValue(ctx, Settings.PRE_HAS_NEW_VERSION, false);
+			if (currentVersion>=Settings.getLongPreferenceValue(ctx, Settings.PRE_LAST_BUILD, currentVersion)){
+				if (hasNewVersion){
+					Settings.updateBooleanPreferenceValue(ctx, Settings.PRE_HAS_NEW_VERSION, false);
+					Settings.updateLongPreferenceValue(ctx, Settings.PRE_LAST_BUILD, currentVersion);	
+				}
+				return false;
+			}else{
+				return true;
+			}
+		} catch (NameNotFoundException e) {
+			return false;
+		}
 	}
 	
 	/**
@@ -66,6 +80,7 @@ public class NetHelper {
 			if (Integer.parseInt(lastBuild)>currentVersion){
 				Log.d(TAG,"Set new version available flag");
 				Settings.updateBooleanPreferenceValue(ctx, Settings.PRE_HAS_NEW_VERSION, true);
+				Settings.updateLongPreferenceValue(ctx, Settings.PRE_LAST_BUILD, Integer.parseInt(lastBuild));
 			}
 		} catch (NameNotFoundException e) {
 			e.printStackTrace();

@@ -42,7 +42,6 @@ import cn.zadui.reader.provider.ReaderArchive.Archives;
 /**
  * 
  * @author David
- * TODO All HTTP connection should support HTTP 302 redirection
  *
  */
 public class DownloadService extends Service {
@@ -116,7 +115,7 @@ public class DownloadService extends Service {
 			//Url
 			String pkgUrl=item.getZipPkgUrl();
 			pkgUrl=pkgUrl.substring(0,pkgUrl.lastIndexOf('/')+1)+zipFileName;
-			URLConnection con=NetHelper.buildUrlConnection(item.getZipPkgUrl());
+			HttpURLConnection con=NetHelper.buildUrlConnection(item.getZipPkgUrl());
 			con.connect();
 			FileOutputStream out=new FileOutputStream(targetZip);
 			InputStream in=con.getInputStream();
@@ -126,6 +125,7 @@ public class DownloadService extends Service {
 			}
 			out.close();
 			in.close();
+			con.disconnect();
 		} catch (IOException e) {
 			Log.e(TAG,"Downloa zip file error");
 			e.printStackTrace();
@@ -186,7 +186,7 @@ public class DownloadService extends Service {
 		InputStream in=null;
 		FileOutputStream out=null;
 		try {
-			URLConnection con=NetHelper.buildUrlConnection(item.getThumbUrl());
+			HttpURLConnection con=NetHelper.buildUrlConnection(item.getThumbUrl());
 			con.connect();
 			in=con.getInputStream();
 			out=new FileOutputStream(thumb);
@@ -271,6 +271,7 @@ public class DownloadService extends Service {
 		        }
 		        cursor.close();
 				Log.d(TAG,"Items size is ==> "+String.valueOf(feed.getItems().size()));
+				// Store items in feeder to db
 				for (Iterator<RSSItem> iter = feed.getItems().iterator(); iter.hasNext();) {
 					//Did this item already existed?
 					RSSItem item=iter.next();
@@ -290,6 +291,7 @@ public class DownloadService extends Service {
 				}
 				// Update feed time stamp
 				Settings.updateLastFeedPubDate(DownloadService.this,feed.getPubDate().toGMTString());
+				reader.close();
 			} catch (RSSReaderException e) {
 				if(listener!=null) listener.onStateChanged(ServiceState.ERROR,e.getMessage());
 				e.printStackTrace();
