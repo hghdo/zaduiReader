@@ -164,7 +164,7 @@ public class Settings {
 		Calendar cal=new GregorianCalendar();
 		cal.setTimeInMillis(now);		
 		Intent sync=new Intent(ctx,DownloadService.class);
-		sync.putExtra("TriggerBy", "AlarmManager");
+		sync.putExtra(DownloadService.TRIGGER, "AlarmManager");
 		//PendingIntent.getService(ctx, 0, sync, PendingIntent.FLAG_UPDATE_CURRENT);
 		AlarmManager alarm=(AlarmManager)ctx.getSystemService(Context.ALARM_SERVICE);
 		// the unit is minuts
