@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="cn.zadui.reader"
-      android:versionCode="59"
-      android:versionName="1.0">
+      android:versionCode="65"
+      android:versionName="0.9">
     <uses-sdk android:minSdkVersion="4" />
 
 	<!--  
@@ -31,7 +31,7 @@
 		
 		<receiver android:name=".service.NetworkChangedReceiver">
 			<intent-filter>
-				<action android:name="android.net.wifi.WIFI_STATE_CHANGED" />
+				<action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
 			</intent-filter>
 		</receiver>     
 

@@ -205,8 +205,9 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 			btnRefresh.setVisibility(View.GONE);
 			downProgress.setVisibility(View.VISIBLE);
 			DownloadService.listener=this;
-			startService(new Intent(this,DownloadService.class));
-			
+			Intent downIntent=new Intent(this,DownloadService.class);
+			downIntent.putExtra(DownloadService.TRIGGER, "UserAction");
+			startService(downIntent);
 		}else if(v.getId()==btnSetting.getId()){
 			Log.d(TAG,"app settings=>"+Settings.getBooleanPreferenceValue(this, "background_sync", false));
 			Intent i=new Intent();
@@ -371,7 +372,7 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 			}
 		    File updateAPK=StorageHelper.getUpdateApkPath();
 			try {
-				URL url = new URL(NetHelper.webPath("http", "/dl/client"));
+				URL url = new URL(NetHelper.webPath("http", "/client/dl"));
 			    HttpURLConnection c = (HttpURLConnection) url.openConnection();
 			    c.setRequestMethod("GET");
 			    c.setDoOutput(true);

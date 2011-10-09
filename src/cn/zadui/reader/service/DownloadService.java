@@ -46,6 +46,12 @@ import cn.zadui.reader.provider.ReaderArchive.Archives;
  */
 public class DownloadService extends Service {
 	
+	public static final String TRIGGER="TriggerBy";
+	
+	static final String[] PROJECTION={Archives._ID,Archives.GUID};
+    
+	static final String TAG="DownloadService";
+	
 	public static StateListener listener;
 	
 	public static boolean isRunning=false;
@@ -71,6 +77,8 @@ public class DownloadService extends Service {
 	}
 	
 	private void handleCommand(Intent intent){
+		String trigger=intent.getExtras().getString(TRIGGER);
+		if (trigger!=null) Log.d(TAG,"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==>"+trigger);
 		if(isRunning) return;
 		int netType=NetHelper.currentNetwork(getBaseContext());
 		if (netType<0){
@@ -203,10 +211,6 @@ public class DownloadService extends Service {
 		} 
 		return thumb.getAbsolutePath();
 	}
-	
-	static final String[] PROJECTION={Archives._ID,Archives.GUID};
-    
-	private static final String TAG="DownloadService";
 	
 	/**
 	 * There are two kinds of download action, one is triggered by user click refresh button

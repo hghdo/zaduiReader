@@ -3,9 +3,10 @@ package cn.zadui.reader.service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.wifi.WifiManager;
 import android.util.Log;
+import cn.zadui.reader.helper.Settings;
 
 public class NetworkChangedReceiver extends BroadcastReceiver {
 	
@@ -13,19 +14,28 @@ public class NetworkChangedReceiver extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		final String action = intent.getAction();
-
-		if (action.equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
-			NetworkInfo info = (NetworkInfo) intent
-					.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
-			if (info.getState().equals(NetworkInfo.State.CONNECTED)) {
-				// Sync archive from remote server!
+		
+		ConnectivityManager connectivityManager = (ConnectivityManager) context
+				.getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo activeNetInfo = connectivityManager.getActiveNetworkInfo();
+		
+		if (activeNetInfo != null && activeNetInfo.getState()==NetworkInfo.State.CONNECTED) {
+			if(activeNetInfo.getType()==ConnectivityManager.TYPE_WIFI){
 				Log.d(TAG,"wifi connected!");
-				context.startService(new Intent(context,DownloadService.class));
+				startDownloadService(context);				
+			}else if(activeNetInfo.getType()==ConnectivityManager.TYPE_MOBILE && !Settings.getBooleanPreferenceValue(context, Settings.PRE_WIFI_ONLY, Settings.DEF_WIFI_ONLY)){
+				Log.d(TAG,"Mobile Network connected!");
+				startDownloadService(context);					
+			}else{
+				//do nothing
 			}
-		}else if(false){
-			
 		}
+	}
+
+	private void startDownloadService(Context context) {
+		Intent downIntent=new Intent(context,DownloadService.class);
+		downIntent.putExtra(DownloadService.TRIGGER, "NetworkChangedReceiver");
+		context.startService(downIntent);
 	}
 
 }

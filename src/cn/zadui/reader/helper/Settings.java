@@ -48,7 +48,7 @@ public class Settings {
 	public static final String PRE_USER_COMMENTS="user_comments";
 	
 	public static final String DEF_SYNC_INTERVAL="5";
-	public static final boolean DEF_WIFI_ONLY=true;
+	public static final boolean DEF_WIFI_ONLY=false;
 	public static final String DEF_IMAGE_QUALITY="m";
 	public static final String DEF_MAX_ARCHIVES="8";
 	
@@ -164,7 +164,8 @@ public class Settings {
 		Calendar cal=new GregorianCalendar();
 		cal.setTimeInMillis(now);		
 		Intent sync=new Intent(ctx,DownloadService.class);
-		PendingIntent.getService(ctx, 0, sync, PendingIntent.FLAG_UPDATE_CURRENT);
+		sync.putExtra("TriggerBy", "AlarmManager");
+		//PendingIntent.getService(ctx, 0, sync, PendingIntent.FLAG_UPDATE_CURRENT);
 		AlarmManager alarm=(AlarmManager)ctx.getSystemService(Context.ALARM_SERVICE);
 		// the unit is minuts
 		int interval=Integer.valueOf(Settings.getStringPreferenceValue(ctx, Settings.PRE_SYNC_INTERVAL, Settings.DEF_SYNC_INTERVAL));
