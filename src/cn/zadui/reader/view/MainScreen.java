@@ -180,6 +180,7 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 			downProgress.setVisibility(View.VISIBLE);
 			DownloadService.listener=this;
 			Intent sync=new Intent(getApplicationContext(),DownloadService.class);
+			sync.putExtra(DownloadService.TRIGGER, "First open!");
 			startService(sync);
 		}else{
 			UsageCollector.openApp(this.getApplicationContext());
@@ -262,6 +263,7 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 					adapter.notifyDataSetInvalidated();
 					btnRefresh.setVisibility(View.VISIBLE);
 					downProgress.setVisibility(View.GONE);
+					if (info!=null && info.length()>0) Toast.makeText(MainScreen.this, info,Toast.LENGTH_SHORT).show();
 				}else if (state==DownloadService.ServiceState.ERROR){
 					btnRefresh.setVisibility(View.VISIBLE);
 					downProgress.setVisibility(View.GONE);

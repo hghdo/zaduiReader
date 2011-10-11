@@ -83,6 +83,8 @@ public class NetHelper {
 			}
 		} catch (NameNotFoundException e) {
 			e.printStackTrace();
+		} catch (Exception ce){
+			ce.printStackTrace();
 		}
 	}
 	

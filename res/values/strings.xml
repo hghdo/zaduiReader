@@ -12,7 +12,7 @@
     <string name="sync_interval">更新间隔</string>
     <string name="wifi_only_title">只允许使用WIFI更新</string>
     <string name="wifi_only_enabled_summ">不允许使用GPRS或者3G网络同步数据</string>
-    <string name="wifi_only_disabled_summ">允许使用任何网络同步数据</string>
+    <string name="wifi_only_disabled_summ">允许使用GPRS或者3G网络同步数据</string>
     
     
     <string name="sync_interval_3h">每3小时更新一次</string>

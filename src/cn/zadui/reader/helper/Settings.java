@@ -50,7 +50,7 @@ public class Settings {
 	public static final String DEF_SYNC_INTERVAL="5";
 	public static final boolean DEF_WIFI_ONLY=false;
 	public static final String DEF_IMAGE_QUALITY="m";
-	public static final String DEF_MAX_ARCHIVES="8";
+	public static final String DEF_MAX_ARCHIVES="12";
 	
 	
 	public static long getLongPreferenceValue(Context ctx,String preName,long defaultValue){
@@ -168,7 +168,8 @@ public class Settings {
 		//PendingIntent.getService(ctx, 0, sync, PendingIntent.FLAG_UPDATE_CURRENT);
 		AlarmManager alarm=(AlarmManager)ctx.getSystemService(Context.ALARM_SERVICE);
 		// the unit is minuts
-		int interval=Integer.valueOf(Settings.getStringPreferenceValue(ctx, Settings.PRE_SYNC_INTERVAL, Settings.DEF_SYNC_INTERVAL));
+		//int interval=Integer.valueOf(Settings.getStringPreferenceValue(ctx, Settings.PRE_SYNC_INTERVAL, Settings.DEF_SYNC_INTERVAL));
+		int interval=Integer.valueOf(Settings.DEF_SYNC_INTERVAL);
 		//interval=2;
 		cal.add(Calendar.MINUTE, interval);
 		alarm.setRepeating(

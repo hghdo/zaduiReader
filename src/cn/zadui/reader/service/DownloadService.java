@@ -77,8 +77,10 @@ public class DownloadService extends Service {
 	}
 	
 	private void handleCommand(Intent intent){
-		String trigger=intent.getExtras().getString(TRIGGER);
-		if (trigger!=null) Log.d(TAG,"Service lauched by => "+trigger);
+		if(intent.getExtras()!=null){
+			String trigger=intent.getExtras().getString(TRIGGER);
+			if (trigger!=null) Log.d(TAG,"Service lauched by => "+trigger);			
+		}
 		if(isRunning) return;
 		int netType=NetHelper.currentNetwork(getBaseContext());
 		if (netType<0){
