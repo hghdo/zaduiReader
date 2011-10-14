@@ -39,7 +39,7 @@ public class UsageCollector {
 		// Return if the interval to last opened less than 15 minutes.
 		//if (interval<15*60*1000) return;
 		String oldUsageStr=Settings.getStringPreferenceValue(ctx, Settings.PRE_USAGE,INI_USAGE_STR);
-		Log.d("DDDDDDDDDDDDDDDDDDDDDDDDDD",oldUsageStr);
+		Log.d(TAG,oldUsageStr);
 		FAQCalendar lastOpened=new FAQCalendar(lastOpenTS);
 		FAQCalendar now=new FAQCalendar(currentTime);
 		if (now.getUnixDay()>lastOpened.getUnixDay()){
@@ -131,12 +131,49 @@ public class UsageCollector {
 	        }
 	        uc.disconnect();
 		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}		
+	}
+	
+	public static void nofityInstalled(Context ctx){
+		URL url;
+		try {
+			url = new URL(NetHelper.webPath("http", "/activate")); //"http://172.29.1.67:3389/collector");
+			Log.d(TAG,url.toString());
+			HttpURLConnection http = (HttpURLConnection) url.openConnection();
+	        http.setDoInput(true);
+	        http.setDoOutput(true);
+	        http.setRequestMethod("POST");
+			StringBuilder sb=new StringBuilder();
+			sb.append("uid="+getDeviceId(ctx));
+			SimpleDateFormat df=new SimpleDateFormat("yyyyMMdd'T'HH:mm");
+			Date installed=new Date(Settings.getLongPreferenceValue(ctx, Settings.PRE_INSTALLED_AT, 0));
+			sb.append("&installed_at="+df.format(installed));
+			try {
+				PackageInfo pi = ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0);
+				sb.append("&build="+String.valueOf(pi.versionCode));
+			} catch (NameNotFoundException e) {
+				e.printStackTrace();
+			}
+	        String data=sb.toString();
+	        Log.d(TAG,"POST User Active Date => "+data);
+	        http.getOutputStream().write(data.getBytes("UTF-8")); 
+	        http.getOutputStream().close();
+	        http.getOutputStream().close();
+	        if (http.getResponseCode()==HttpURLConnection.HTTP_CREATED){
+	        	Log.d(TAG,"Activate response is=> " + String.valueOf(http.getResponseCode()));
+	        	//Settings.updateStringPreferenceValue(ctx, Settings.PRE_USER_COMMENTS, "");
+	        }
+	        http.disconnect();
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (Exception ee){
+			ee.printStackTrace();
+		}
 	}
 	
 	/**
@@ -151,9 +188,12 @@ public class UsageCollector {
 	 */
 	public static String generateHttpPostData(Context ctx){
 		StringBuilder sb=new StringBuilder();
-		sb.append("uid="+getDeviceId(ctx));
+		sb.append("pv=2");
+		sb.append("&uid="+getDeviceId(ctx));
 		SimpleDateFormat df=new SimpleDateFormat("yyyyMMdd'T'HH:mm");
 		Date d=new Date(Settings.getLongPreferenceValue(ctx, Settings.PRE_COLLECTION_STARTED_AT, 0));
+		Date installed=new Date(Settings.getLongPreferenceValue(ctx, Settings.PRE_INSTALLED_AT, 0));
+		sb.append("&installed_at="+df.format(installed));
 		sb.append("&from="+df.format(d));
 		sb.append("&dev[os][name]="+"android");
 		sb.append("&dev[os][codename]="+Build.VERSION.CODENAME);

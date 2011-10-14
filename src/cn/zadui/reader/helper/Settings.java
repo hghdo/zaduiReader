@@ -175,7 +175,7 @@ public class Settings {
 		alarm.setRepeating(
 				AlarmManager.RTC, 
 				cal.getTimeInMillis(), 
-				interval*60*1000, 
+				interval*60*60*1000, 
 				PendingIntent.getService(ctx, 0, sync, PendingIntent.FLAG_UPDATE_CURRENT)
 				);
 	}

@@ -180,7 +180,7 @@ public class MainScreen extends ListActivity implements View.OnClickListener,Dow
 			downProgress.setVisibility(View.VISIBLE);
 			DownloadService.listener=this;
 			Intent sync=new Intent(getApplicationContext(),DownloadService.class);
-			sync.putExtra(DownloadService.TRIGGER, "First open!");
+			sync.putExtra(DownloadService.TRIGGER, "Activate");
 			startService(sync);
 		}else{
 			UsageCollector.openApp(this.getApplicationContext());

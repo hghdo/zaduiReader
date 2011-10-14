@@ -77,8 +77,9 @@ public class DownloadService extends Service {
 	}
 	
 	private void handleCommand(Intent intent){
+		String trigger=null;
 		if(intent.getExtras()!=null){
-			String trigger=intent.getExtras().getString(TRIGGER);
+			trigger=intent.getExtras().getString(TRIGGER);
 			if (trigger!=null) Log.d(TAG,"Service lauched by => "+trigger);			
 		}
 		if(isRunning) return;
@@ -88,7 +89,7 @@ public class DownloadService extends Service {
 			return;			
 		}
 		storageHelper=new StorageHelper(getPackageName());
-		(new DownloadThread(netType)).start();
+		(new DownloadThread(netType,trigger)).start();
 	}
 	
 	@Override
@@ -223,9 +224,11 @@ public class DownloadService extends Service {
 	private class DownloadThread extends Thread{
 		
 		private int networkType;
+		private String trigger;
 		
-		public DownloadThread(int netType){
+		public DownloadThread(int netType,String trigger){
 			networkType=netType;
+			this.trigger=trigger;
 		}
 		
 		@Override
@@ -243,6 +246,11 @@ public class DownloadService extends Service {
 				isRunning=false;
 				DownloadService.this.stopSelf();
 				return;
+			}
+			Log.d(TAG,"DDDDDDDDDDDDDDDDDDDDDZZZZZZZZZZZZZZZZDD"+trigger);
+			if (trigger.equals("Activate")){
+				
+				UsageCollector.nofityInstalled(DownloadService.this.getApplicationContext());
 			}
 			
 			// upload collected data to Server

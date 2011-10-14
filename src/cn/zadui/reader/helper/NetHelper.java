@@ -16,7 +16,7 @@ public class NetHelper {
 
 	public static final int CONNECT_TIMEOUT=20*1000;
 	public static final int READ_TIMEOUT=20*1000;
-//	public static final String HOST_NAME="172.29.0.28";
+//	public static final String HOST_NAME="172.29.0.72";
 //	public static final String HOST_NAME="192.168.1.104";
 	public static final String HOST_NAME="meili.51leiju.cn";
 	public static final String PORT="80";
